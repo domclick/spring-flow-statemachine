@@ -8,6 +8,4 @@ import java.util.Map;
  */
 public interface StateProvider<T, E extends Enum<E>> {
     Map<T, E> getItemsState(List<String> ids);
-
-    void updateState(E newState, List<T> items);
 }
