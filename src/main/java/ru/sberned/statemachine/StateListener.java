@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.StateProvider;
 
@@ -29,6 +30,7 @@ public class StateListener<T, E extends Enum<E>> {
     @Async
     @EventListener
     public void handleStateChanged(StateChangedEvent event) {
+        Assert.notNull(stateHolder);
         Map<E, List<T>> itemsMap = new HashMap<>();
         Map<T, E> sourceMap = stateProvider.getItemsState(event.getIds());
         for (Map.Entry<T, E> entry : sourceMap.entrySet()) {

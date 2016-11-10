@@ -100,7 +100,7 @@ public class StateHolder<T, E extends Enum<E>> {
 
     public static class StateTransition<T, E extends Enum<E>> implements To<T, E>, From<T, E>, CompleteTransition<T, E> {
         private final StateHolder<T, E> stateHolder;
-        private Set<E> from, to;
+        private Set<E> from = new HashSet<>(), to = new HashSet<>();
         private List<BeforeTransition<T>> beforeTransitions = new ArrayList<>();
         private List<AfterTransition<T>> afterTransitions = new ArrayList<>();
 
