@@ -48,7 +48,7 @@ public class StateMachineApplicationTests {
         StateHolder.StateHolderBuilder<TestConfig.Item, TestConfig.CustomState> builder = new StateHolder.StateHolderBuilder<>();
         StateHolder<TestConfig.Item, TestConfig.CustomState> stateHolder = builder.setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<TestConfig.CustomState>allOf(TestConfig.CustomState.class)).defineTransitions()
-                .from(TestConfig.CustomState.START).to(TestConfig.CustomState.STATE1).complete();
+                .from(TestConfig.CustomState.START).to(TestConfig.CustomState.STATE1).build();
 
 
         stateListener.setStateHolder(stateHolder);

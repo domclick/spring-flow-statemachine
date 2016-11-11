@@ -89,13 +89,13 @@ public class StateHolder<T, E extends Enum<E>> {
     }
 
     public interface CompleteTransition<T, E extends Enum<E>> {
-        void before(BeforeTransition<T>... handlers);
+        CompleteTransition<T, E> before(BeforeTransition<T>... handlers);
 
-        void after(AfterTransition<T>... handlers);
+        CompleteTransition<T, E> after(AfterTransition<T>... handlers);
 
         From<T, E> and();
 
-        StateHolder<T, E> complete();
+        StateHolder<T, E> build();
     }
 
     public static class StateTransition<T, E extends Enum<E>> implements To<T, E>, From<T, E>, CompleteTransition<T, E> {
@@ -134,13 +134,15 @@ public class StateHolder<T, E extends Enum<E>> {
         }
 
         @Override
-        public void before(BeforeTransition<T>... handlers) {
+        public CompleteTransition<T, E> before(BeforeTransition<T>... handlers) {
             beforeTransitions.addAll(Arrays.asList(handlers));
+            return this;
         }
 
         @Override
-        public void after(AfterTransition<T>... handlers) {
+        public CompleteTransition<T, E> after(AfterTransition<T>... handlers) {
             afterTransitions.addAll(Arrays.asList(handlers));
+            return this;
         }
 
         private void finalizeStep() {
@@ -172,7 +174,7 @@ public class StateHolder<T, E extends Enum<E>> {
         }
 
         @Override
-        public StateHolder<T, E> complete() {
+        public StateHolder<T, E> build() {
             finalizeStep();
             return stateHolder;
         }
