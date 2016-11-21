@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -15,11 +16,20 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("ru.sberned.statemachine")
 public class TestConfig {
     @Bean
     public StateProvider<Item, CustomState> stateProvider() {
         return new CustomStateProvider();
+    }
+
+    @Bean
+    public StateListener<Item, CustomState> stateListener() {
+        return new StateListener<Item, CustomState>() {
+            @EventListener
+            public void handleTestStateChanged(TestStateChangedEvent event) {
+                handleStateChanged(event.getStateChangedEvent());
+            }
+        };
     }
 
     public static class CustomStateProvider implements StateProvider<Item, CustomState> {
@@ -41,6 +51,16 @@ public class TestConfig {
 
         public Item(String id) {
             this.id = id;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Item && id.equals(((Item) other).id);
+        }
+
+        @Override
+        public int hashCode() {
+            return  id.hashCode();
         }
     }
 

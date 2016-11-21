@@ -10,11 +10,11 @@ import java.util.*;
  * Created by empatuk on 09/11/2016.
  */
 public class StateHolder<T, E extends Enum<E>> {
-    private Map<E, Map<E, Processors<T>>> stateMap = new HashMap<>();
+    private Map<E, Map<E, Processors>> stateMap = new HashMap<>();
     private OnTransition<T, E> transition;
-    private EnumSet<E> availableStates;
+    private Set<E> availableStates;
 
-    public boolean isValidTransition(E from, E to) {
+    boolean isValidTransition(E from, E to) {
         return stateMap.get(to) != null && stateMap.get(to).get(from) != null;
     }
 
@@ -22,29 +22,29 @@ public class StateHolder<T, E extends Enum<E>> {
         this.transition = transition;
     }
 
-    private void setAvailableStates(EnumSet<E> availableStates) {
+    private void setAvailableStates(Set<E> availableStates) {
         this.availableStates = availableStates;
     }
 
-    public OnTransition<T, E> getTransition() {
+    OnTransition<T, E> getTransition() {
         return transition;
     }
 
-    public List<BeforeTransition<T>> getBefore(E from, E to) {
+    List<BeforeTransition<T>> getBefore(E from, E to) {
         if (isValidTransition(from, to)) {
-            stateMap.get(to).get(from).getBeforeHandlers();
+            return stateMap.get(to).get(from).getBeforeHandlers();
         }
         return new ArrayList<>();
     }
 
-    public List<AfterTransition<T>> getAfter(E from, E to) {
+    List<AfterTransition<T>> getAfter(E from, E to) {
         if (isValidTransition(from, to)) {
-            stateMap.get(to).get(from).getAfterHandlers();
+            return stateMap.get(to).get(from).getAfterHandlers();
         }
         return new ArrayList<>();
     }
 
-    private static class Processors<T> {
+    private class Processors {
         private List<BeforeTransition<T>> beforeHandlers = new ArrayList<>();
         private List<AfterTransition<T>> afterHandlers = new ArrayList<>();
 
@@ -58,10 +58,10 @@ public class StateHolder<T, E extends Enum<E>> {
     }
 
 
-    public static class StateHolderBuilder<T, E extends Enum<E>> {
+    static class StateHolderBuilder<T, E extends Enum<E>> {
         private StateHolder<T, E> stateHolder;
         public StateHolderBuilder() {
-            stateHolder = new StateHolder<T, E>();
+            stateHolder = new StateHolder<>();
         }
 
         public StateHolderBuilder setStateChanger(OnTransition<T, E> transition) {
@@ -69,14 +69,13 @@ public class StateHolder<T, E extends Enum<E>> {
             return this;
         }
 
-        public StateHolderBuilder setAvailableStates(EnumSet<E> availableStates) {
+        public StateHolderBuilder setAvailableStates(Set<E> availableStates) {
             stateHolder.setAvailableStates(availableStates);
             return this;
         }
 
         public From<T,E> defineTransitions() {
-            StateTransition<T, E> transition = new StateTransition<T, E>(stateHolder);
-            return transition;
+            return stateHolder.new StateTransition(stateHolder);
         }
     }
 
@@ -98,7 +97,7 @@ public class StateHolder<T, E extends Enum<E>> {
         StateHolder<T, E> build();
     }
 
-    public static class StateTransition<T, E extends Enum<E>> implements To<T, E>, From<T, E>, CompleteTransition<T, E> {
+    public class StateTransition implements To<T, E>, From<T, E>, CompleteTransition<T, E> {
         private final StateHolder<T, E> stateHolder;
         private Set<E> from = new HashSet<>(), to = new HashSet<>();
         private List<BeforeTransition<T>> beforeTransitions = new ArrayList<>();
@@ -146,19 +145,19 @@ public class StateHolder<T, E extends Enum<E>> {
         }
 
         private void finalizeStep() {
-            Map<E, Map<E, Processors<T>>> states = stateHolder.stateMap;
+            Map<E, Map<E, StateHolder<T, E>.Processors>> states = stateHolder.stateMap;
 
             for (E toState : to) {
-                Map<E, Processors<T>> toMap = states.get(toState);
+                Map<E, StateHolder<T, E>.Processors> toMap = states.get(toState);
                 if (toMap == null) {
                     toMap = new HashMap<>();
                     states.put(toState, toMap);
                 }
 
                 for (E fromState : from) {
-                    Processors<T> processors = toMap.get(fromState);
+                    StateHolder.Processors processors = toMap.get(fromState);
                     if (processors == null) {
-                        processors = new Processors<T>();
+                        processors = stateHolder.new Processors();
                         toMap.put(fromState, processors);
                     }
                     processors.getBeforeHandlers().addAll(beforeTransitions);
@@ -170,7 +169,7 @@ public class StateHolder<T, E extends Enum<E>> {
         @Override
         public From<T, E> and() {
             finalizeStep();
-            return new StateTransition<T, E>(stateHolder);
+            return stateHolder.new StateTransition(stateHolder);
         }
 
         @Override
