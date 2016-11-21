@@ -1,11 +1,11 @@
-package ru.sberned.statemachine;
+package ru.sberned.statemachine.config;
 
 /**
  * Created by empatuk on 21/11/2016.
  */
 public class Item {
-    String id;
-    CustomState state;
+    public String id;
+    public CustomState state;
 
     public Item(String id, CustomState state) {
         this.id = id;

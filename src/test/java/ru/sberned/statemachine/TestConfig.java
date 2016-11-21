@@ -4,6 +4,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import ru.sberned.statemachine.config.CustomState;
+import ru.sberned.statemachine.config.Item;
+import ru.sberned.statemachine.config.TestStateChangedEvent;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -39,7 +42,7 @@ public class TestConfig {
         public Map<Item, CustomState> getItemsState(List<String> ids) {
             return items.stream()
                     .filter(item -> ids.contains(item.id))
-                    .collect(Collectors.toMap(Item::getState, Function.identity()));
+                    .collect(Collectors.toMap(Function.identity(), Item::getState));
         }
 
         public void setItems(List<Item> items) {

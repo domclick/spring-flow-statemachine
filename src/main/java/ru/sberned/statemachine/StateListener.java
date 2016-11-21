@@ -47,8 +47,10 @@ public class StateListener<T, E extends Enum<E>> {
 
     @Transactional
     private void processItems(List<T> items, E from, E to) {
+        stateHolder.getAnyBefore().forEach(handler -> handler.beforeTransition(items));
         stateHolder.getBefore(from, to).forEach(handler -> handler.beforeTransition(items));
         stateHolder.getTransition().moveToState(to, items);
         stateHolder.getAfter(from, to).forEach(handler -> handler.afterTransition(items));
+        stateHolder.getAnyAfter().forEach(handler -> handler.afterTransition(items));
     }
 }

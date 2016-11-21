@@ -1,4 +1,4 @@
-package ru.sberned.statemachine;
+package ru.sberned.statemachine.config;
 
 /**
  * Created by empatuk on 21/11/2016.

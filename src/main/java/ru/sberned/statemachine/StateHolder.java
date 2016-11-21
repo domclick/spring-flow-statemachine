@@ -13,6 +13,8 @@ public class StateHolder<T, E extends Enum<E>> {
     private Map<E, Map<E, Processors>> stateMap = new HashMap<>();
     private OnTransition<T, E> transition;
     private Set<E> availableStates;
+    private List<BeforeTransition<T>> anyBeforeHandlers = new ArrayList<>();
+    private List<AfterTransition<T>> anyAfterHandlers = new ArrayList<>();
 
     boolean isValidTransition(E from, E to) {
         return stateMap.get(to) != null && stateMap.get(to).get(from) != null;
@@ -24,6 +26,14 @@ public class StateHolder<T, E extends Enum<E>> {
 
     private void setAvailableStates(Set<E> availableStates) {
         this.availableStates = availableStates;
+    }
+
+    private void setAnyBefore(List<BeforeTransition<T>> anyBefore) {
+        anyBeforeHandlers.addAll(anyBefore);
+    }
+
+    private void setAnyAfter(List<AfterTransition<T>> anyAfter) {
+        anyAfterHandlers.addAll(anyAfter);
     }
 
     OnTransition<T, E> getTransition() {
@@ -42,6 +52,14 @@ public class StateHolder<T, E extends Enum<E>> {
             return stateMap.get(to).get(from).getAfterHandlers();
         }
         return new ArrayList<>();
+    }
+
+    List<BeforeTransition<T>> getAnyBefore() {
+        return anyBeforeHandlers;
+    }
+
+    List<AfterTransition<T>> getAnyAfter() {
+        return anyAfterHandlers;
     }
 
     private class Processors {
@@ -66,6 +84,17 @@ public class StateHolder<T, E extends Enum<E>> {
 
         public StateHolderBuilder setStateChanger(OnTransition<T, E> transition) {
             stateHolder.setStateChanger(transition);
+            return this;
+        }
+
+        public StateHolderBuilder setAnyBefore(BeforeTransition<T>... handlers) {
+            stateHolder.setAnyBefore(Arrays.asList(handlers));
+            return this;
+        }
+
+
+        public StateHolderBuilder setAnyAfter(AfterTransition<T>... handlers) {
+            stateHolder.setAnyAfter(Arrays.asList(handlers));
             return this;
         }
 

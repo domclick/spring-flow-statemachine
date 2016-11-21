@@ -1,5 +1,6 @@
-package ru.sberned.statemachine;
+package ru.sberned.statemachine.config;
 
+import ru.sberned.statemachine.config.CustomState;
 import ru.sberned.statemachine.state.StateChangedEvent;
 
 import java.util.List;
