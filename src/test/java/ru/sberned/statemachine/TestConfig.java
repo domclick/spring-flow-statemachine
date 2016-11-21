@@ -2,13 +2,13 @@ package ru.sberned.statemachine;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -33,36 +33,17 @@ public class TestConfig {
     }
 
     public static class CustomStateProvider implements StateProvider<Item, CustomState> {
-        private Map<Item, CustomState> items;
+        private List<Item> items;
 
         @Override
         public Map<Item, CustomState> getItemsState(List<String> ids) {
-            return items.entrySet().stream().filter(entry -> ids.contains(entry.getKey().id))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return items.stream()
+                    .filter(item -> ids.contains(item.id))
+                    .collect(Collectors.toMap(Item::getState, Function.identity()));
         }
 
-        public void setItems(Map<Item, CustomState> items) {
+        public void setItems(List<Item> items) {
             this.items = items;
         }
     }
-
-    public static class Item {
-        String id;
-
-        public Item(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Item && id.equals(((Item) other).id);
-        }
-
-        @Override
-        public int hashCode() {
-            return  id.hashCode();
-        }
-    }
-
-    public enum CustomState {START, STATE1, STATE2, STATE3, STATE4, FINISH, CANCEL}
 }

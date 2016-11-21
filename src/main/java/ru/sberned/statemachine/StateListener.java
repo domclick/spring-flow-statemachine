@@ -29,21 +29,18 @@ public class StateListener<T, E extends Enum<E>> {
 
     @Async
     @EventListener
-    public void handleStateChanged(StateChangedEvent event) {
+    public synchronized void handleStateChanged(StateChangedEvent<E> event) {
         Assert.notNull(stateHolder);
         Map<E, List<T>> itemsMap = new HashMap<>();
         Map<T, E> sourceMap = stateProvider.getItemsState(event.getIds());
         for (Map.Entry<T, E> entry : sourceMap.entrySet()) {
-            if (itemsMap.get(entry.getValue()) == null) {
-                List<T> items = new ArrayList<>();
-                itemsMap.put(entry.getValue(), items);
-            }
+            itemsMap.putIfAbsent(entry.getValue(), new ArrayList<>());
             itemsMap.get(entry.getValue()).add(entry.getKey());
         }
 
-        itemsMap.forEach((k, v) -> {
-            if (stateHolder.isValidTransition(k, (E) event.getNewState())) {
-                processItems(v, k, (E) event.getNewState());
+        itemsMap.forEach((stateFrom, items) -> {
+            if (stateHolder.isValidTransition(stateFrom, event.getNewState())) {
+                processItems(items, stateFrom, event.getNewState());
             }
         });
     }
