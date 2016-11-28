@@ -2,12 +2,16 @@ package ru.sberned.statemachine;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
+import ru.sberned.statemachine.config.CustomState;
+import ru.sberned.statemachine.config.Item;
+import ru.sberned.statemachine.config.TestStateChangedEvent;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -15,34 +19,34 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("ru.sberned.statemachine")
 public class TestConfig {
     @Bean
     public StateProvider<Item, CustomState> stateProvider() {
         return new CustomStateProvider();
     }
 
+    @Bean
+    public StateListener<Item, CustomState> stateListener() {
+        return new StateListener<Item, CustomState>() {
+            @EventListener
+            public void handleTestStateChanged(TestStateChangedEvent event) {
+                handleStateChanged(event.getStateChangedEvent());
+            }
+        };
+    }
+
     public static class CustomStateProvider implements StateProvider<Item, CustomState> {
-        private Map<Item, CustomState> items;
+        private List<Item> items;
 
         @Override
         public Map<Item, CustomState> getItemsState(List<String> ids) {
-            return items.entrySet().stream().filter(entry -> ids.contains(entry.getKey().id))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return items.stream()
+                    .filter(item -> ids.contains(item.id))
+                    .collect(Collectors.toMap(Function.identity(), Item::getState));
         }
 
-        public void setItems(Map<Item, CustomState> items) {
+        public void setItems(List<Item> items) {
             this.items = items;
         }
     }
-
-    public static class Item {
-        String id;
-
-        public Item(String id) {
-            this.id = id;
-        }
-    }
-
-    public enum CustomState {START, STATE1, STATE2, STATE3, STATE4, FINISH, CANCEL}
 }
