@@ -9,6 +9,8 @@ import ru.sberned.statemachine.config.Item;
 import ru.sberned.statemachine.config.TestStateChangedEvent;
 import ru.sberned.statemachine.lock.MapStateLock;
 import ru.sberned.statemachine.lock.StateLock;
+import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
+import ru.sberned.statemachine.processor.UnhandledMessageProcessorImpl;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
  * Created by empatuk on 10/11/2016.
  */
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = StateConfig.class)
 public class TestConfig {
     @Bean
     public StateProvider<Item, CustomState, String> stateProvider() {
@@ -30,6 +32,11 @@ public class TestConfig {
     @Bean
     public StateLock<String> stateLock() {
         return new MapStateLock<>();
+    }
+
+    @Bean
+    public UnhandledMessageProcessor<Item> unhandledMessageProcessor() {
+        return new UnhandledMessageProcessorImpl<>();
     }
 
     @Bean

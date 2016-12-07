@@ -3,11 +3,11 @@ package ru.sberned.statemachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.sberned.statemachine.lock.StateLock;
+import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 import ru.sberned.statemachine.state.GetId;
 import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.StateProvider;
@@ -25,6 +25,8 @@ public abstract class StateListener<T extends GetId<K>, E extends Enum<E>, K> {
     private StateProvider<T, E, K> stateProvider;
     @Autowired
     private StateLock<K> stateLock;
+    @Autowired
+    private UnhandledMessageProcessor<T> unhandledMessageProcessor;
     private StateHolder<T, E> stateHolder;
     @Value("${statemachine.lock.timeout.ms}")
     private long lockTimeout = 5000;
@@ -33,7 +35,6 @@ public abstract class StateListener<T extends GetId<K>, E extends Enum<E>, K> {
         this.stateHolder = stateHolder;
     }
 
-    @Async
     @EventListener
     public synchronized void handleStateChanged(StateChangedEvent<E, K> event) {
         Assert.notNull(stateHolder);
@@ -42,9 +43,11 @@ public abstract class StateListener<T extends GetId<K>, E extends Enum<E>, K> {
         sourceMap.entrySet().parallelStream().forEach((entry) -> {
             Lock lockObject = stateLock.getLockObject(entry.getKey().getId());
             try {
-                lockObject.tryLock(lockTimeout, TimeUnit.MILLISECONDS);
-                if (stateHolder.isValidTransition(entry.getValue(), event.getNewState())) {
+                if (lockObject.tryLock(lockTimeout, TimeUnit.MILLISECONDS) &&
+                        stateHolder.isValidTransition(entry.getValue(), event.getNewState())) {
                     processItems(entry.getKey(), entry.getValue(), event.getNewState());
+                } else {
+                    unhandledMessageProcessor.process(entry.getKey());
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
