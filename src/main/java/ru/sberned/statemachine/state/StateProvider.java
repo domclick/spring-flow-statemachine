@@ -6,6 +6,6 @@ import java.util.Map;
 /**
  * Created by empatuk on 01/11/2016.
  */
-public interface StateProvider<T, E extends Enum<E>> {
-    Map<T, E> getItemsState(List<String> ids);
+public interface StateProvider<T, E extends Enum<E>, K> {
+    Map<T, E> getItemsState(List<K> ids);
 }

@@ -6,5 +6,5 @@ import java.util.List;
  * Created by empatuk on 09/11/2016.
  */
 public interface BeforeTransition<T> {
-    void beforeTransition(List<T> items);
+    void beforeTransition(T item);
 }

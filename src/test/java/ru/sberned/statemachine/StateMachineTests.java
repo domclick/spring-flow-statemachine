@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 )
 public class StateMachineTests {
 	@Autowired
-	private StateListener<Item, CustomState> stateListener;
+	private StateListener<Item, CustomState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
@@ -43,8 +43,8 @@ public class StateMachineTests {
     private class TestOnTransition implements OnTransition<Item, CustomState> {
 
         @Override
-        public void moveToState(CustomState state, List<Item> items) {
-            items.forEach(item -> item.state = state);
+        public void moveToState(CustomState state, Item item) {
+            item.state = state;
         }
     }
 
@@ -73,7 +73,7 @@ public class StateMachineTests {
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new TestStateChangedEvent(this, "1", CustomState.STATE1));
-        verify(onTransition, times(1)).moveToState(CustomState.STATE1, Arrays.asList(new Item("1", CustomState.START)));
+        verify(onTransition, times(1)).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
 	}
 
     @Test
@@ -92,19 +92,19 @@ public class StateMachineTests {
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new TestStateChangedEvent(this, "1", CustomState.STATE1));
 
-        List<Item> items = Arrays.asList(new Item("1", CustomState.START));
+        Item item = new Item("1", CustomState.START);
 
         InOrder inOrder = inOrder(beforeTransition1, beforeTransition2, onTransition, afterTransition1, afterTransition2);
-        inOrder.verify(beforeTransition1, times(1)).beforeTransition(items);
-        inOrder.verify(beforeTransition2, times(1)).beforeTransition(items);
-        inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, items);
-        inOrder.verify(afterTransition1, times(1)).afterTransition(items);
-        inOrder.verify(afterTransition2, times(1)).afterTransition(items);
+        inOrder.verify(beforeTransition1, times(1)).beforeTransition(item);
+        inOrder.verify(beforeTransition2, times(1)).beforeTransition(item);
+        inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, item);
+        inOrder.verify(afterTransition1, times(1)).afterTransition(item);
+        inOrder.verify(afterTransition2, times(1)).afterTransition(item);
     }
 
     @Test
     public void testConflictingEventsLeadToOnlyOneStateChange() throws InterruptedException {
-        Mockito.doCallRealMethod().when(onTransition).moveToState(any(CustomState.class), anyList());
+        Mockito.doCallRealMethod().when(onTransition).moveToState(any(CustomState.class), any(Item.class));
         StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
         StateHolder<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
@@ -135,8 +135,9 @@ public class StateMachineTests {
         executor.shutdown();
         executor.awaitTermination(100, TimeUnit.SECONDS);
 
-        verify(onTransition, times(1)).moveToState(any(CustomState.class), eq(Arrays.asList(new Item("1", CustomState.START), new Item("4", CustomState.START))));
-        verify(onTransition, times(1)).moveToState(any(CustomState.class), eq(Arrays.asList(new Item("6", CustomState.START))));
+        verify(onTransition, times(1)).moveToState(any(CustomState.class), eq(new Item("1", CustomState.START)));
+        verify(onTransition, times(1)).moveToState(any(CustomState.class), eq(new Item("4", CustomState.START)));
+        verify(onTransition, times(1)).moveToState(any(CustomState.class), eq(new Item("6", CustomState.START)));
         Map<Item, CustomState> modifiedItems = stateProvider.getItemsState(Arrays.asList("1","4"));
         assertEquals(modifiedItems.size(), 2);
         Item[] items = modifiedItems.keySet().toArray(new Item[2]);
@@ -156,8 +157,8 @@ public class StateMachineTests {
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new TestStateChangedEvent(this, Arrays.asList("1", "2"), CustomState.STATE1));
-        verify(onTransition, times(1)).moveToState(CustomState.STATE1, Arrays.asList(new Item("1", CustomState.START)));
-        verify(onTransition, times(0)).moveToState(CustomState.STATE1, Arrays.asList(new Item("2", CustomState.STATE1)));
+        verify(onTransition, times(1)).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
+        verify(onTransition, times(0)).moveToState(CustomState.STATE1, new Item("2", CustomState.STATE1));
     }
 
     @Test
@@ -177,14 +178,14 @@ public class StateMachineTests {
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new TestStateChangedEvent(this, "1", CustomState.STATE1));
-        List<Item> items = Arrays.asList(new Item("1", CustomState.START));
+        Item item = new Item("1", CustomState.START);
 
         InOrder inOrder = inOrder(beforeTransition2, beforeTransition1, onTransition, afterTransition2, afterTransition1);
-        inOrder.verify(beforeTransition2, times(1)).beforeTransition(items);
-        inOrder.verify(beforeTransition1, times(1)).beforeTransition(items);
-        inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, items);
-        inOrder.verify(afterTransition1, times(1)).afterTransition(items);
-        inOrder.verify(afterTransition2, times(1)).afterTransition(items);
+        inOrder.verify(beforeTransition2, times(1)).beforeTransition(item);
+        inOrder.verify(beforeTransition1, times(1)).beforeTransition(item);
+        inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, item);
+        inOrder.verify(afterTransition1, times(1)).afterTransition(item);
+        inOrder.verify(afterTransition2, times(1)).afterTransition(item);
     }
 
 }

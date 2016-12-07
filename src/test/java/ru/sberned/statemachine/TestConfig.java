@@ -7,6 +7,8 @@ import org.springframework.context.event.EventListener;
 import ru.sberned.statemachine.config.CustomState;
 import ru.sberned.statemachine.config.Item;
 import ru.sberned.statemachine.config.TestStateChangedEvent;
+import ru.sberned.statemachine.lock.MapStateLock;
+import ru.sberned.statemachine.lock.StateLock;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -21,13 +23,18 @@ import java.util.stream.Collectors;
 @EnableAutoConfiguration
 public class TestConfig {
     @Bean
-    public StateProvider<Item, CustomState> stateProvider() {
+    public StateProvider<Item, CustomState, String> stateProvider() {
         return new CustomStateProvider();
     }
 
     @Bean
-    public StateListener<Item, CustomState> stateListener() {
-        return new StateListener<Item, CustomState>() {
+    public StateLock<String> stateLock() {
+        return new MapStateLock<>();
+    }
+
+    @Bean
+    public StateListener<Item, CustomState, String> stateListener() {
+        return new StateListener<Item, CustomState, String>() {
             @EventListener
             public void handleTestStateChanged(TestStateChangedEvent event) {
                 handleStateChanged(event.getStateChangedEvent());
@@ -35,7 +42,7 @@ public class TestConfig {
         };
     }
 
-    public static class CustomStateProvider implements StateProvider<Item, CustomState> {
+    public static class CustomStateProvider implements StateProvider<Item, CustomState, String> {
         private List<Item> items;
 
         @Override

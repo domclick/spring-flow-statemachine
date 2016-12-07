@@ -9,16 +9,16 @@ import java.util.List;
  * Created by empatuk on 18/11/2016.
  */
 public class TestStateChangedEvent  {
-    private StateChangedEvent<CustomState> stateChangedEvent;
+    private StateChangedEvent<CustomState, String> stateChangedEvent;
     public TestStateChangedEvent(Object source, List<String> ids, CustomState newState) {
-        stateChangedEvent = new StateChangedEvent<CustomState>(source, ids, newState);
+        stateChangedEvent = new StateChangedEvent<>(source, ids, newState);
     }
 
     public TestStateChangedEvent(Object source, String id, CustomState newState) {
-        stateChangedEvent = new StateChangedEvent<CustomState>(source, id, newState);
+        stateChangedEvent = new StateChangedEvent<>(source, id, newState);
     }
 
-    public StateChangedEvent<CustomState> getStateChangedEvent() {
+    public StateChangedEvent<CustomState, String> getStateChangedEvent() {
         return stateChangedEvent;
     }
 }

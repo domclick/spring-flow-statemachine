@@ -8,23 +8,23 @@ import java.util.List;
 /**
  * Created by empatuk on 01/11/2016.
  */
-public class StateChangedEvent<E extends Enum<E>> extends ApplicationEvent {
-    private List<String> ids;
+public class StateChangedEvent<E extends Enum<E>, K> extends ApplicationEvent {
+    private List<K> ids;
     private E newState;
 
-    public StateChangedEvent(Object source, List<String> ids, E newState) {
+    public StateChangedEvent(Object source, List<K> ids, E newState) {
         super(source);
         this.ids = ids;
         this.newState = newState;
     }
 
-    public StateChangedEvent(Object source, String id, E newState) {
+    public StateChangedEvent(Object source, K id, E newState) {
         super(source);
         this.ids = Arrays.asList(id);
         this.newState = newState;
     }
 
-    public List<String> getIds() {
+    public List<K> getIds() {
         return ids;
     }
 
