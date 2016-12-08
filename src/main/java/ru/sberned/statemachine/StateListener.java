@@ -63,21 +63,21 @@ public abstract class StateListener<ENTITY extends HasId<KEY>, STATE extends Enu
                 if (stateHolder.isValidTransition(currentState, newState)) {
                     processItems(entity, currentState, newState);
                 } else {
-                    handleException(entity, currentState, INVALID_TRANSITION, null);
+                    handleIncorrectCase(entity, currentState, INVALID_TRANSITION, null);
                 }
             } else {
-                handleException(entity, currentState, TIMEOUT, null);
+                handleIncorrectCase(entity, currentState, TIMEOUT, null);
             }
         } catch (InterruptedException e) {
-            handleException(entity, currentState, INTERRUPTED_EXCEPTION, e);
+            handleIncorrectCase(entity, currentState, INTERRUPTED_EXCEPTION, e);
         } catch (Exception e) {
-            handleException(entity, currentState, EXECUTION_EXCEPTION, e);
+            handleIncorrectCase(entity, currentState, EXECUTION_EXCEPTION, e);
         } finally {
             if (locked) lockObject.unlock();
         }
     }
 
-    private void handleException(ENTITY entity, STATE currentState, IssueType issueType, Exception e) {
+    private void handleIncorrectCase(ENTITY entity, STATE currentState, IssueType issueType, Exception e) {
         String errorMsg = MessageFormat.format("Processing for item {0} failed. State is {1}. Issue type is {2}", entity, currentState, issueType);
 
         if (e != null) LOGGER.error(errorMsg, e);

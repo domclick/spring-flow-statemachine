@@ -200,11 +200,8 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
                 }
 
                 for (STATE fromState : from) {
+                    toMap.putIfAbsent(fromState, stateHolder.new Processors());
                     StateHolder<ENTITY, STATE>.Processors processors = toMap.get(fromState);
-                    if (processors == null) {
-                        processors = stateHolder.new Processors();
-                        toMap.put(fromState, processors);
-                    }
                     processors.getBeforeHandlers().addAll(beforeTransitions);
                     processors.getAfterHandlers().addAll(afterTransitions);
                 }
