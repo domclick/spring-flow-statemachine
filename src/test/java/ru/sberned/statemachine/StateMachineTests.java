@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
@@ -114,7 +113,7 @@ public class StateMachineTests {
         stateListener.setStateHolder(stateHolder);
 
         Item item = new Item("1", CustomState.START);
-        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1, null);
+        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
 
         InOrder inOrder = inOrder(beforeTransition1, beforeTransition2, onTransition, afterTransition1, afterTransition2);
         inOrder.verify(beforeTransition1, times(1)).beforeTransition(item);
@@ -181,7 +180,7 @@ public class StateMachineTests {
 
         stateListener.setStateHolder(stateHolder);
         Item item = new Item("1", CustomState.START);
-        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1, null);
+        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
 
         InOrder inOrder = inOrder(beforeTransition2, beforeTransition1, onTransition, afterTransition2, afterTransition1);
         inOrder.verify(beforeTransition2, times(1)).beforeTransition(item);

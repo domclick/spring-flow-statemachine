@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.sberned.statemachine.lock.StateLockProvider;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
+import ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType;
 import ru.sberned.statemachine.state.HasId;
 import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.StateProvider;
@@ -43,50 +44,48 @@ public abstract class StateListener<ENTITY extends HasId<KEY>, STATE extends Enu
     @EventListener
     public synchronized void handleStateChanged(StateChangedEvent<STATE, KEY> event) {
         Assert.notNull(stateHolder);
-        UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor = stateHolder.getUnhandledMessageProcessor();
         Map<ENTITY, STATE> sourceMap = stateProvider.getItemsState(event.getIds());
 
         sourceMap.entrySet().forEach((entry) -> {
             CompletableFuture.supplyAsync(() -> {
-                handleMessage(entry.getKey(), entry.getValue(), event.getNewState(), unhandledMessageProcessor);
+                handleMessage(entry.getKey(), entry.getValue(), event.getNewState());
                 return null;
-            }).whenCompleteAsync((result, error) -> {
-                if (error != null) {
-                    LOGGER.error(MessageFormat.format("Processing for item {0} failed. State is {1}", entry.getKey(), entry.getValue()), error);
-                    if (unhandledMessageProcessor != null) {
-                        unhandledMessageProcessor.process(entry.getKey(), EXECUTION_EXCEPTION, error);
-                    }
-                }
             });
 
         });
     }
 
-    protected void handleMessage(ENTITY entity, STATE currentState, STATE newState, UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor) {
+    void handleMessage(ENTITY entity, STATE currentState, STATE newState) {
         Lock lockObject = stateLock.getLockObject(entity.getId());
         boolean locked = false;
         try {
             if (locked = lockObject.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 if (stateHolder.isValidTransition(currentState, newState)) {
                     processItems(entity, currentState, newState);
-                } else if (unhandledMessageProcessor != null) {
-                    unhandledMessageProcessor.process(entity, INVALID_TRANSITION, null);
+                } else {
+                    handleException(entity, currentState, INVALID_TRANSITION, null);
                 }
-            } else if (unhandledMessageProcessor != null) {
-                unhandledMessageProcessor.process(entity, TIMEOUT, null);
+            } else {
+                handleException(entity, currentState, TIMEOUT, null);
             }
         } catch (InterruptedException e) {
-            LOGGER.error(MessageFormat.format("Processing for item {0} failed. State is {1}", entity, currentState), e);
-            if (unhandledMessageProcessor != null) {
-                unhandledMessageProcessor.process(entity, INTERRUPTED_EXCEPTION, e);
-            }
+            handleException(entity, currentState, INTERRUPTED_EXCEPTION, e);
         } catch (Exception e) {
-            LOGGER.error(MessageFormat.format("Processing for item {0} failed. State is {1}", entity, currentState), e);
-            if (unhandledMessageProcessor != null) {
-                unhandledMessageProcessor.process(entity, EXECUTION_EXCEPTION, e);
-            }
+            handleException(entity, currentState, EXECUTION_EXCEPTION, e);
         } finally {
             if (locked) lockObject.unlock();
+        }
+    }
+
+    private void handleException(ENTITY entity, STATE currentState, IssueType issueType, Exception e) {
+        String errorMsg = MessageFormat.format("Processing for item {0} failed. State is {1}. Issue type is {2}", entity, currentState, issueType);
+
+        if (e != null) LOGGER.error(errorMsg, e);
+        else LOGGER.error(errorMsg);
+
+        UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor = stateHolder.getUnhandledMessageProcessor();
+        if (unhandledMessageProcessor != null) {
+            unhandledMessageProcessor.process(entity, issueType, e);
         }
     }
 

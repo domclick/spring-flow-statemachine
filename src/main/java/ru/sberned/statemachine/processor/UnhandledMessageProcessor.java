@@ -6,5 +6,5 @@ package ru.sberned.statemachine.processor;
 public interface UnhandledMessageProcessor<T> {
     enum IssueType {INVALID_TRANSITION, TIMEOUT, INTERRUPTED_EXCEPTION, EXECUTION_EXCEPTION}
 
-    void process(T item, IssueType type, Throwable ex);
+    void process(T item, IssueType type, Exception ex);
 }
