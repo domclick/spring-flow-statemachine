@@ -6,7 +6,7 @@ package ru.sberned.statemachine.processor;
 public class UnhandledMessageProcessorImpl<T> implements UnhandledMessageProcessor<T> {
 
     @Override
-    public void process(T item) {
+    public void process(T item, IssueType type, Throwable ex) {
         //default impl does nothing
     }
 }

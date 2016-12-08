@@ -3,14 +3,10 @@ package ru.sberned.statemachine;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
 import ru.sberned.statemachine.config.CustomState;
 import ru.sberned.statemachine.config.Item;
-import ru.sberned.statemachine.config.TestStateChangedEvent;
-import ru.sberned.statemachine.lock.MapStateLock;
-import ru.sberned.statemachine.lock.StateLock;
-import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
-import ru.sberned.statemachine.processor.UnhandledMessageProcessorImpl;
+import ru.sberned.statemachine.lock.MapStateLockProvider;
+import ru.sberned.statemachine.lock.StateLockProvider;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -24,29 +20,21 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableAutoConfiguration(exclude = StateConfig.class)
 public class TestConfig {
+
+
     @Bean
     public StateProvider<Item, CustomState, String> stateProvider() {
         return new CustomStateProvider();
     }
 
     @Bean
-    public StateLock<String> stateLock() {
-        return new MapStateLock<>();
-    }
-
-    @Bean
-    public UnhandledMessageProcessor<Item> unhandledMessageProcessor() {
-        return new UnhandledMessageProcessorImpl<>();
+    public StateLockProvider<String> stateLock() {
+        return new MapStateLockProvider<>();
     }
 
     @Bean
     public StateListener<Item, CustomState, String> stateListener() {
-        return new StateListener<Item, CustomState, String>() {
-            @EventListener
-            public void handleTestStateChanged(TestStateChangedEvent event) {
-                handleStateChanged(event.getStateChangedEvent());
-            }
-        };
+        return new StateListener<Item, CustomState, String>() {};
     }
 
     public static class CustomStateProvider implements StateProvider<Item, CustomState, String> {

@@ -1,5 +1,6 @@
 package ru.sberned.statemachine;
 
+import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 import ru.sberned.statemachine.state.AfterTransition;
 import ru.sberned.statemachine.state.BeforeTransition;
 import ru.sberned.statemachine.state.OnTransition;
@@ -9,139 +10,154 @@ import java.util.*;
 /**
  * Created by empatuk on 09/11/2016.
  */
-public class StateHolder<T, E extends Enum<E>> {
-    private Map<E, Map<E, Processors>> stateMap = new HashMap<>();
-    private OnTransition<T, E> transition;
-    private Set<E> availableStates;
-    private List<BeforeTransition<T>> anyBeforeHandlers = new ArrayList<>();
-    private List<AfterTransition<T>> anyAfterHandlers = new ArrayList<>();
+public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
+    private Map<STATE, Map<STATE, Processors>> stateMap = new HashMap<>();
+    private OnTransition<ENTITY, STATE> transition;
+    private Set<STATE> availableStates;
+    private List<BeforeTransition<ENTITY>> beforeAllHandlers = new ArrayList<>();
+    private List<AfterTransition<ENTITY>> afterAllHandlers = new ArrayList<>();
+    private UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor;
 
-    boolean isValidTransition(E from, E to) {
+    boolean isValidTransition(STATE from, STATE to) {
         return stateMap.get(to) != null && stateMap.get(to).get(from) != null;
     }
 
-    private void setStateChanger(OnTransition<T, E> transition) {
+    private void setStateChanger(OnTransition<ENTITY, STATE> transition) {
         this.transition = transition;
     }
 
-    private void setAvailableStates(Set<E> availableStates) {
+    private void setAvailableStates(Set<STATE> availableStates) {
         this.availableStates = availableStates;
     }
 
-    private void setAnyBefore(List<BeforeTransition<T>> anyBefore) {
-        anyBeforeHandlers.addAll(anyBefore);
+    private void setAnyBefore(List<BeforeTransition<ENTITY>> anyBefore) {
+        beforeAllHandlers.addAll(anyBefore);
     }
 
-    private void setAnyAfter(List<AfterTransition<T>> anyAfter) {
-        anyAfterHandlers.addAll(anyAfter);
+    private void setAnyAfter(List<AfterTransition<ENTITY>> anyAfter) {
+        afterAllHandlers.addAll(anyAfter);
     }
 
-    OnTransition<T, E> getTransition() {
+    private void setUnhandledMessageProcessor(UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor) {
+        this.unhandledMessageProcessor = unhandledMessageProcessor;
+    }
+
+    OnTransition<ENTITY, STATE> getTransition() {
         return transition;
     }
 
-    List<BeforeTransition<T>> getBefore(E from, E to) {
+    List<BeforeTransition<ENTITY>> getBefore(STATE from, STATE to) {
         if (isValidTransition(from, to)) {
             return stateMap.get(to).get(from).getBeforeHandlers();
         }
         return new ArrayList<>();
     }
 
-    List<AfterTransition<T>> getAfter(E from, E to) {
+    List<AfterTransition<ENTITY>> getAfter(STATE from, STATE to) {
         if (isValidTransition(from, to)) {
             return stateMap.get(to).get(from).getAfterHandlers();
         }
         return new ArrayList<>();
     }
 
-    List<BeforeTransition<T>> getAnyBefore() {
-        return anyBeforeHandlers;
+    List<BeforeTransition<ENTITY>> getBeforeAll() {
+        return beforeAllHandlers;
     }
 
-    List<AfterTransition<T>> getAnyAfter() {
-        return anyAfterHandlers;
+    List<AfterTransition<ENTITY>> getAfterAll() {
+        return afterAllHandlers;
+    }
+
+    UnhandledMessageProcessor<ENTITY> getUnhandledMessageProcessor() {
+        return unhandledMessageProcessor;
     }
 
     private class Processors {
-        private List<BeforeTransition<T>> beforeHandlers = new ArrayList<>();
-        private List<AfterTransition<T>> afterHandlers = new ArrayList<>();
+        private List<BeforeTransition<ENTITY>> beforeHandlers = new ArrayList<>();
+        private List<AfterTransition<ENTITY>> afterHandlers = new ArrayList<>();
 
-        private List<BeforeTransition<T>> getBeforeHandlers() {
+        private List<BeforeTransition<ENTITY>> getBeforeHandlers() {
             return beforeHandlers;
         }
 
-        private List<AfterTransition<T>> getAfterHandlers() {
+        private List<AfterTransition<ENTITY>> getAfterHandlers() {
             return afterHandlers;
         }
     }
 
 
-    static class StateHolderBuilder<T, E extends Enum<E>> {
-        private StateHolder<T, E> stateHolder;
+    static class StateHolderBuilder<ENTITY, STATE extends Enum<STATE>> {
+        private StateHolder<ENTITY, STATE> stateHolder;
+
         public StateHolderBuilder() {
             stateHolder = new StateHolder<>();
         }
 
-        public StateHolderBuilder setStateChanger(OnTransition<T, E> transition) {
+        public StateHolderBuilder<ENTITY, STATE> setStateChanger(OnTransition<ENTITY, STATE> transition) {
             stateHolder.setStateChanger(transition);
             return this;
         }
 
-        public StateHolderBuilder setAnyBefore(BeforeTransition<T>... handlers) {
+        public StateHolderBuilder<ENTITY, STATE> setAnyBefore(BeforeTransition<ENTITY>... handlers) {
             stateHolder.setAnyBefore(Arrays.asList(handlers));
             return this;
         }
 
 
-        public StateHolderBuilder setAnyAfter(AfterTransition<T>... handlers) {
+        public StateHolderBuilder<ENTITY, STATE> setAnyAfter(AfterTransition<ENTITY>... handlers) {
             stateHolder.setAnyAfter(Arrays.asList(handlers));
             return this;
         }
 
-        public StateHolderBuilder setAvailableStates(Set<E> availableStates) {
+        public StateHolderBuilder<ENTITY, STATE> setAvailableStates(Set<STATE> availableStates) {
             stateHolder.setAvailableStates(availableStates);
             return this;
         }
 
-        public From<T,E> defineTransitions() {
+        public StateHolderBuilder<ENTITY, STATE> setUnhandledMessageProcessor(UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor) {
+            stateHolder.setUnhandledMessageProcessor(unhandledMessageProcessor);
+            return this;
+        }
+
+        public From<ENTITY, STATE> defineTransitions() {
             return stateHolder.new StateTransition(stateHolder);
         }
     }
 
-    public interface From<T, E extends Enum<E>> {
-        To<T, E> from(E... states);
+    public interface From<ENTITY, STATE extends Enum<STATE>> {
+        To<ENTITY, STATE> from(STATE... states);
     }
 
-    public interface To<T, E extends Enum<E>> {
-        CompleteTransition<T, E> to(E... states);
+    public interface To<ENTITY, STATE extends Enum<STATE>> {
+        CompleteTransition<ENTITY, STATE> to(STATE... states);
     }
 
-    public interface CompleteTransition<T, E extends Enum<E>> {
-        CompleteTransition<T, E> before(BeforeTransition<T>... handlers);
+    public interface CompleteTransition<ENTITY, STATE extends Enum<STATE>> {
+        CompleteTransition<ENTITY, STATE> before(BeforeTransition<ENTITY>... handlers);
 
-        CompleteTransition<T, E> after(AfterTransition<T>... handlers);
+        CompleteTransition<ENTITY, STATE> after(AfterTransition<ENTITY>... handlers);
 
-        From<T, E> and();
+        From<ENTITY, STATE> and();
 
-        StateHolder<T, E> build();
+        StateHolder<ENTITY, STATE> build();
     }
 
-    public class StateTransition implements To<T, E>, From<T, E>, CompleteTransition<T, E> {
-        private final StateHolder<T, E> stateHolder;
-        private Set<E> from = new HashSet<>(), to = new HashSet<>();
-        private List<BeforeTransition<T>> beforeTransitions = new ArrayList<>();
-        private List<AfterTransition<T>> afterTransitions = new ArrayList<>();
+    public class StateTransition implements To<ENTITY, STATE>, From<ENTITY, STATE>, CompleteTransition<ENTITY, STATE> {
+        private final StateHolder<ENTITY, STATE> stateHolder;
+        private Set<STATE> from = new HashSet<>(), to = new HashSet<>();
+        private List<BeforeTransition<ENTITY>> beforeTransitions = new ArrayList<>();
+        private List<AfterTransition<ENTITY>> afterTransitions = new ArrayList<>();
 
-        public StateTransition(StateHolder<T, E> stateHolder) {
+        public StateTransition(StateHolder<ENTITY, STATE> stateHolder) {
             this.stateHolder = stateHolder;
         }
 
-        private void checkAndFillStates(Set<E> whereToFill, E... states) {
+        private void checkAndFillStates(Set<STATE> whereToFill, STATE... states) {
             if (states == null || states.length == 0) {
                 throw new IllegalArgumentException("No states supplied to from!");
             }
 
-            for (E state : states) {
+            for (STATE state : states) {
                 if (!stateHolder.availableStates.contains(state)) {
                     throw new IllegalArgumentException("State " + state + " is not within available states");
                 }
@@ -150,40 +166,40 @@ public class StateHolder<T, E extends Enum<E>> {
         }
 
         @Override
-        public To<T, E> from(E... states) {
+        public To<ENTITY, STATE> from(STATE... states) {
             checkAndFillStates(from, states);
             return this;
         }
 
         @Override
-        public CompleteTransition<T, E> to(E... states) {
+        public CompleteTransition<ENTITY, STATE> to(STATE... states) {
             checkAndFillStates(to, states);
             return this;
         }
 
         @Override
-        public CompleteTransition<T, E> before(BeforeTransition<T>... handlers) {
+        public CompleteTransition<ENTITY, STATE> before(BeforeTransition<ENTITY>... handlers) {
             beforeTransitions.addAll(Arrays.asList(handlers));
             return this;
         }
 
         @Override
-        public CompleteTransition<T, E> after(AfterTransition<T>... handlers) {
+        public CompleteTransition<ENTITY, STATE> after(AfterTransition<ENTITY>... handlers) {
             afterTransitions.addAll(Arrays.asList(handlers));
             return this;
         }
 
         private void finalizeStep() {
-            Map<E, Map<E, StateHolder<T, E>.Processors>> states = stateHolder.stateMap;
+            Map<STATE, Map<STATE, StateHolder<ENTITY, STATE>.Processors>> states = stateHolder.stateMap;
 
-            for (E toState : to) {
-                Map<E, StateHolder<T, E>.Processors> toMap = states.get(toState);
+            for (STATE toState : to) {
+                Map<STATE, StateHolder<ENTITY, STATE>.Processors> toMap = states.get(toState);
                 if (toMap == null) {
                     toMap = new HashMap<>();
                     states.put(toState, toMap);
                 }
 
-                for (E fromState : from) {
+                for (STATE fromState : from) {
                     StateHolder.Processors processors = toMap.get(fromState);
                     if (processors == null) {
                         processors = stateHolder.new Processors();
@@ -196,13 +212,13 @@ public class StateHolder<T, E extends Enum<E>> {
         }
 
         @Override
-        public From<T, E> and() {
+        public From<ENTITY, STATE> and() {
             finalizeStep();
             return stateHolder.new StateTransition(stateHolder);
         }
 
         @Override
-        public StateHolder<T, E> build() {
+        public StateHolder<ENTITY, STATE> build() {
             finalizeStep();
             return stateHolder;
         }
