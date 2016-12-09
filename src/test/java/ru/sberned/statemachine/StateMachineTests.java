@@ -30,7 +30,7 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
 )
 public class StateMachineTests {
     @Autowired
-    private StateListener<Item, CustomState, String> stateListener;
+    private AbstractStateListener<Item, CustomState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
@@ -64,8 +64,8 @@ public class StateMachineTests {
         }
     }
 
-    private StateHolder<Item, CustomState> getDefaultTransition(UnhandledMessageProcessor<Item> unhandled) {
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
+    private StateMachine<Item, CustomState> getDefaultTransition(UnhandledMessageProcessor<Item> unhandled) {
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
         return builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
@@ -90,7 +90,7 @@ public class StateMachineTests {
 
     @Test
     public void testCorrectStatesNoHandlers() {
-        StateHolder<Item, CustomState> stateHolder = getDefaultTransition(null);
+        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(null);
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE1));
@@ -99,8 +99,8 @@ public class StateMachineTests {
 
     @Test
     public void testCorrectStatesWithHandlersInOrder() {
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
-        StateHolder<Item, CustomState> stateHolder = builder
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+        StateMachine<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .defineTransitions()
@@ -126,8 +126,8 @@ public class StateMachineTests {
     @Test
     public void testConflictingEventsLeadToOnlyOneStateChange() throws InterruptedException {
         Mockito.doCallRealMethod().when(onTransition).moveToState(any(CustomState.class), any(Item.class));
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
-        StateHolder<Item, CustomState> stateHolder = builder
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+        StateMachine<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .defineTransitions()
@@ -156,7 +156,7 @@ public class StateMachineTests {
 
     @Test
     public void testNoTransition() {
-        StateHolder<Item, CustomState> stateHolder = getDefaultTransition(null);
+        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(null);
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "2", CustomState.STATE1));
@@ -165,8 +165,8 @@ public class StateMachineTests {
 
     @Test
     public void testAnyHandlers() {
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
-        StateHolder<Item, CustomState> stateHolder = builder
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+        StateMachine<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .setAnyBefore(beforeTransition2)
@@ -192,8 +192,8 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorTimeout() throws InterruptedException {
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
-        StateHolder<Item, CustomState> stateHolder = builder
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+        StateMachine<Item, CustomState> stateHolder = builder
                 .setStateChanger(new TimeoutOnTransition())
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .setUnhandledMessageProcessor(processor)
@@ -216,7 +216,7 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorInvalidState() throws InterruptedException {
-        StateHolder<Item, CustomState> stateHolder = getDefaultTransition(processor);
+        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(processor);
 
         stateListener.setStateHolder(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE2));
@@ -226,7 +226,7 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorExecutionException() throws InterruptedException {
-        StateHolder<Item, CustomState> stateHolder = getDefaultTransition(processor);
+        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(processor);
         stateListener.setStateHolder(stateHolder);
 
         RuntimeException ex = new RuntimeException();
@@ -239,8 +239,8 @@ public class StateMachineTests {
 
     @Test
     public void testStateNotPresentInStateHolder() throws InterruptedException {
-        StateHolder.StateHolderBuilder<Item, CustomState> builder = new StateHolder.StateHolderBuilder<>();
-        StateHolder<Item, CustomState> stateHolder = builder
+        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+        StateMachine<Item, CustomState> stateHolder = builder
                 .setStateChanger(new TimeoutOnTransition())
                 .setAvailableStates(EnumSet.of(CustomState.START, CustomState.FINISH))
                 .setUnhandledMessageProcessor(processor)

@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Created by empatuk on 09/11/2016.
  */
-public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
+public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
     private Map<STATE, Map<STATE, Processors>> stateMap = new HashMap<>();
     private OnTransition<ENTITY, STATE> transition;
     private Set<STATE> availableStates;
@@ -87,10 +87,10 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
 
 
     static class StateHolderBuilder<ENTITY, STATE extends Enum<STATE>> {
-        private StateHolder<ENTITY, STATE> stateHolder;
+        private StateMachine<ENTITY, STATE> stateHolder;
 
         public StateHolderBuilder() {
-            stateHolder = new StateHolder<>();
+            stateHolder = new StateMachine<>();
         }
 
         public StateHolderBuilder<ENTITY, STATE> setStateChanger(OnTransition<ENTITY, STATE> transition) {
@@ -139,16 +139,16 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
 
         From<ENTITY, STATE> and();
 
-        StateHolder<ENTITY, STATE> build();
+        StateMachine<ENTITY, STATE> build();
     }
 
     public class StateTransition implements To<ENTITY, STATE>, From<ENTITY, STATE>, CompleteTransition<ENTITY, STATE> {
-        private final StateHolder<ENTITY, STATE> stateHolder;
+        private final StateMachine<ENTITY, STATE> stateHolder;
         private Set<STATE> from = new HashSet<>(), to = new HashSet<>();
         private List<BeforeTransition<ENTITY>> beforeTransitions = new ArrayList<>();
         private List<AfterTransition<ENTITY>> afterTransitions = new ArrayList<>();
 
-        public StateTransition(StateHolder<ENTITY, STATE> stateHolder) {
+        public StateTransition(StateMachine<ENTITY, STATE> stateHolder) {
             this.stateHolder = stateHolder;
         }
 
@@ -190,10 +190,10 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
         }
 
         private void finalizeStep() {
-            Map<STATE, Map<STATE, StateHolder<ENTITY, STATE>.Processors>> states = stateHolder.stateMap;
+            Map<STATE, Map<STATE, StateMachine<ENTITY, STATE>.Processors>> states = stateHolder.stateMap;
 
             for (STATE toState : to) {
-                Map<STATE, StateHolder<ENTITY, STATE>.Processors> toMap = states.get(toState);
+                Map<STATE, StateMachine<ENTITY, STATE>.Processors> toMap = states.get(toState);
                 if (toMap == null) {
                     toMap = new HashMap<>();
                     states.put(toState, toMap);
@@ -201,7 +201,7 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
 
                 for (STATE fromState : from) {
                     toMap.putIfAbsent(fromState, stateHolder.new Processors());
-                    StateHolder<ENTITY, STATE>.Processors processors = toMap.get(fromState);
+                    StateMachine<ENTITY, STATE>.Processors processors = toMap.get(fromState);
                     processors.getBeforeHandlers().addAll(beforeTransitions);
                     processors.getAfterHandlers().addAll(afterTransitions);
                 }
@@ -215,7 +215,7 @@ public class StateHolder<ENTITY, STATE extends Enum<STATE>> {
         }
 
         @Override
-        public StateHolder<ENTITY, STATE> build() {
+        public StateMachine<ENTITY, STATE> build() {
             finalizeStep();
             return stateHolder;
         }

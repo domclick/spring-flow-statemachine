@@ -33,8 +33,8 @@ public class TestConfig {
     }
 
     @Bean
-    public StateListener<Item, CustomState, String> stateListener() {
-        return new StateListener<Item, CustomState, String>() {};
+    public AbstractStateListener<Item, CustomState, String> stateListener() {
+        return new AbstractStateListener<Item, CustomState, String>() {};
     }
 
     public static class CustomStateProvider implements StateProvider<Item, CustomState, String> {

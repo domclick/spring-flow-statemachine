@@ -27,17 +27,17 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
  * Created by empatuk on 09/11/2016.
  */
 @Component
-public abstract class StateListener<ENTITY extends HasId<KEY>, STATE extends Enum<STATE>, KEY> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StateListener.class);
+public abstract class AbstractStateListener<ENTITY extends HasId<KEY>, STATE extends Enum<STATE>, KEY> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStateListener.class);
     @Autowired
     private StateProvider<ENTITY, STATE, KEY> stateProvider;
     @Autowired
     private StateLockProvider<KEY> stateLock;
-    private StateHolder<ENTITY, STATE> stateHolder;
+    private StateMachine<ENTITY, STATE> stateHolder;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;
 
-    public void setStateHolder(StateHolder<ENTITY, STATE> stateHolder) {
+    public void setStateHolder(StateMachine<ENTITY, STATE> stateHolder) {
         this.stateHolder = stateHolder;
     }
 
