@@ -89,8 +89,9 @@ public abstract class StateListener<ENTITY extends HasId<KEY>, STATE extends Enu
         }
     }
 
+    // public is here in order to make transactional work
     @Transactional
-    private void processItems(ENTITY item, STATE from, STATE to) {
+    public void processItems(ENTITY item, STATE from, STATE to) {
         stateHolder.getBeforeAll().forEach(handler -> handler.beforeTransition(item));
         stateHolder.getBefore(from, to).forEach(handler -> handler.beforeTransition(item));
         stateHolder.getTransition().moveToState(to, item);
