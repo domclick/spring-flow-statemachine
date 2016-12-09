@@ -46,13 +46,10 @@ public abstract class StateListener<ENTITY extends HasId<KEY>, STATE extends Enu
         Assert.notNull(stateHolder);
         Map<ENTITY, STATE> sourceMap = stateProvider.getItemsState(event.getIds());
 
-        sourceMap.entrySet().forEach((entry) -> {
-            CompletableFuture.supplyAsync(() -> {
-                handleMessage(entry.getKey(), entry.getValue(), event.getNewState());
-                return null;
-            });
-
-        });
+        sourceMap.entrySet().forEach((entry) -> CompletableFuture.supplyAsync(() -> {
+            handleMessage(entry.getKey(), entry.getValue(), event.getNewState());
+            return null;
+        }));
     }
 
     void handleMessage(ENTITY entity, STATE currentState, STATE newState) {
