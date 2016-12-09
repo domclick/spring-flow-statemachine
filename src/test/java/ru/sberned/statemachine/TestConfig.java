@@ -3,10 +3,10 @@ package ru.sberned.statemachine;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
 import ru.sberned.statemachine.config.CustomState;
 import ru.sberned.statemachine.config.Item;
-import ru.sberned.statemachine.config.TestStateChangedEvent;
+import ru.sberned.statemachine.lock.MapStateLockProvider;
+import ru.sberned.statemachine.lock.StateLockProvider;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -18,24 +18,26 @@ import java.util.stream.Collectors;
  * Created by empatuk on 10/11/2016.
  */
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = StateConfig.class)
 public class TestConfig {
+
+
     @Bean
-    public StateProvider<Item, CustomState> stateProvider() {
+    public StateProvider<Item, CustomState, String> stateProvider() {
         return new CustomStateProvider();
     }
 
     @Bean
-    public StateListener<Item, CustomState> stateListener() {
-        return new StateListener<Item, CustomState>() {
-            @EventListener
-            public void handleTestStateChanged(TestStateChangedEvent event) {
-                handleStateChanged(event.getStateChangedEvent());
-            }
-        };
+    public StateLockProvider<String> stateLock() {
+        return new MapStateLockProvider<>();
     }
 
-    public static class CustomStateProvider implements StateProvider<Item, CustomState> {
+    @Bean
+    public AbstractStateListener<Item, CustomState, String> stateListener() {
+        return new AbstractStateListener<Item, CustomState, String>() {};
+    }
+
+    public static class CustomStateProvider implements StateProvider<Item, CustomState, String> {
         private List<Item> items;
 
         @Override

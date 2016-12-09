@@ -1,9 +1,11 @@
 package ru.sberned.statemachine.config;
 
+import ru.sberned.statemachine.state.HasId;
+
 /**
  * Created by empatuk on 21/11/2016.
  */
-public class Item {
+public class Item implements HasId<String> {
     public String id;
     public CustomState state;
 
@@ -23,6 +25,11 @@ public class Item {
 
     @Override
     public int hashCode() {
-        return  id.hashCode();
+        return id.hashCode();
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 }
