@@ -2,7 +2,7 @@ package ru.sberned.statemachine.state;
 
 import org.springframework.context.ApplicationEvent;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ public class StateChangedEvent<E extends Enum<E>, K> extends ApplicationEvent {
 
     public StateChangedEvent(Object source, K id, E newState) {
         super(source);
-        this.ids = Arrays.asList(id);
+        this.ids = Collections.singletonList(id);
         this.newState = newState;
     }
 

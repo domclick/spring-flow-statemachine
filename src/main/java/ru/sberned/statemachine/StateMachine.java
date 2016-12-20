@@ -98,13 +98,15 @@ public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
             return this;
         }
 
-        public StateHolderBuilder<ENTITY, STATE> setAnyBefore(BeforeTransition<ENTITY>... handlers) {
+        @SafeVarargs
+        public final StateHolderBuilder<ENTITY, STATE> setAnyBefore(BeforeTransition<ENTITY>... handlers) {
             stateHolder.setAnyBefore(Arrays.asList(handlers));
             return this;
         }
 
 
-        public StateHolderBuilder<ENTITY, STATE> setAnyAfter(AfterTransition<ENTITY>... handlers) {
+        @SafeVarargs
+        public final StateHolderBuilder<ENTITY, STATE> setAnyAfter(AfterTransition<ENTITY>... handlers) {
             stateHolder.setAnyAfter(Arrays.asList(handlers));
             return this;
         }
@@ -124,14 +126,17 @@ public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public interface From<ENTITY, STATE extends Enum<STATE>> {
         To<ENTITY, STATE> from(STATE... states);
     }
 
+    @SuppressWarnings("unchecked")
     public interface To<ENTITY, STATE extends Enum<STATE>> {
         CompleteTransition<ENTITY, STATE> to(STATE... states);
     }
 
+    @SuppressWarnings("unchecked")
     public interface CompleteTransition<ENTITY, STATE extends Enum<STATE>> {
         CompleteTransition<ENTITY, STATE> before(BeforeTransition<ENTITY>... handlers);
 
@@ -152,7 +157,8 @@ public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
             this.stateHolder = stateHolder;
         }
 
-        private void checkAndFillStates(Set<STATE> whereToFill, STATE... states) {
+        @SafeVarargs
+        private final void checkAndFillStates(Set<STATE> whereToFill, STATE... states) {
             if (states == null || states.length == 0) {
                 throw new IllegalArgumentException("No states supplied to from!");
             }
@@ -165,26 +171,30 @@ public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
             whereToFill.addAll(Arrays.asList(states));
         }
 
+        @SafeVarargs
         @Override
-        public To<ENTITY, STATE> from(STATE... states) {
+        public final To<ENTITY, STATE> from(STATE... states) {
             checkAndFillStates(from, states);
             return this;
         }
 
+        @SafeVarargs
         @Override
-        public CompleteTransition<ENTITY, STATE> to(STATE... states) {
+        public final CompleteTransition<ENTITY, STATE> to(STATE... states) {
             checkAndFillStates(to, states);
             return this;
         }
 
+        @SafeVarargs
         @Override
-        public CompleteTransition<ENTITY, STATE> before(BeforeTransition<ENTITY>... handlers) {
+        public final CompleteTransition<ENTITY, STATE> before(BeforeTransition<ENTITY>... handlers) {
             beforeTransitions.addAll(Arrays.asList(handlers));
             return this;
         }
 
+        @SafeVarargs
         @Override
-        public CompleteTransition<ENTITY, STATE> after(AfterTransition<ENTITY>... handlers) {
+        public final CompleteTransition<ENTITY, STATE> after(AfterTransition<ENTITY>... handlers) {
             afterTransitions.addAll(Arrays.asList(handlers));
             return this;
         }
@@ -193,11 +203,7 @@ public class StateMachine<ENTITY, STATE extends Enum<STATE>> {
             Map<STATE, Map<STATE, StateMachine<ENTITY, STATE>.Processors>> states = stateHolder.stateMap;
 
             for (STATE toState : to) {
-                Map<STATE, StateMachine<ENTITY, STATE>.Processors> toMap = states.get(toState);
-                if (toMap == null) {
-                    toMap = new HashMap<>();
-                    states.put(toState, toMap);
-                }
+                Map<STATE, StateMachine<ENTITY, STATE>.Processors> toMap = states.computeIfAbsent(toState, k -> new HashMap<>());
 
                 for (STATE fromState : from) {
                     toMap.putIfAbsent(fromState, stateHolder.new Processors());
