@@ -1,2 +1,2 @@
 # Auto Configure
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=ru.sberned.statemachine.StateConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=ru.sberned.statemachine.StateMachineConfig

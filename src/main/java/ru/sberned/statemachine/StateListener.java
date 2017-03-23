@@ -5,10 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import ru.sberned.statemachine.lock.StateLockProvider;
+import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType;
 import ru.sberned.statemachine.state.HasId;
@@ -26,24 +24,25 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
 /**
  * Created by empatuk on 09/11/2016.
  */
-@Component
-public abstract class AbstractStateListener<ENTITY extends HasId<KEY>, STATE extends Enum<STATE>, KEY> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStateListener.class);
+public class StateListener<ENTITY extends HasId<KEY>, STATE extends Enum<STATE>, KEY> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StateListener.class);
     @Autowired
     private StateProvider<ENTITY, STATE, KEY> stateProvider;
     @Autowired
-    private StateLockProvider<KEY> stateLock;
-    private StateMachine<ENTITY, STATE> stateHolder;
+    private LockProvider<KEY> lockProvider;
+    @Autowired
+    private StateMachine<ENTITY, STATE> stateMachine;
+    private StateRepository<ENTITY, STATE> stateRepository;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;
 
-    public void setStateHolder(StateMachine<ENTITY, STATE> stateHolder) {
-        this.stateHolder = stateHolder;
+    public void setStateRepository(StateRepository<ENTITY, STATE> stateRepository) {
+        this.stateRepository = stateRepository;
     }
 
     @EventListener
     public synchronized void handleStateChanged(StateChangedEvent<STATE, KEY> event) {
-        Assert.notNull(stateHolder);
+        Assert.notNull(stateRepository);
         Map<ENTITY, STATE> sourceMap = stateProvider.getItemsState(event.getIds());
 
         sourceMap.entrySet().forEach((entry) -> CompletableFuture.supplyAsync(() -> {
@@ -53,12 +52,12 @@ public abstract class AbstractStateListener<ENTITY extends HasId<KEY>, STATE ext
     }
 
     void handleMessage(ENTITY entity, STATE currentState, STATE newState) {
-        Lock lockObject = stateLock.getLockObject(entity.getId());
+        Lock lockObject = lockProvider.getLockObject(entity.getId());
         boolean locked = false;
         try {
             if (locked = lockObject.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
-                if (stateHolder.isValidTransition(currentState, newState)) {
-                    processItems(entity, currentState, newState);
+                if (stateRepository.isValidTransition(currentState, newState)) {
+                    stateMachine.processItems(entity, currentState, newState);
                 } else {
                     handleIncorrectCase(entity, currentState, INVALID_TRANSITION, null);
                 }
@@ -80,19 +79,9 @@ public abstract class AbstractStateListener<ENTITY extends HasId<KEY>, STATE ext
         if (e != null) LOGGER.error(errorMsg, e);
         else LOGGER.error(errorMsg);
 
-        UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor = stateHolder.getUnhandledMessageProcessor();
+        UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor = stateRepository.getUnhandledMessageProcessor();
         if (unhandledMessageProcessor != null) {
             unhandledMessageProcessor.process(entity, issueType, e);
         }
-    }
-
-    // public is here in order to make transactional work
-    @Transactional
-    public void processItems(ENTITY item, STATE from, STATE to) {
-        stateHolder.getBeforeAll().forEach(handler -> handler.beforeTransition(item));
-        stateHolder.getBefore(from, to).forEach(handler -> handler.beforeTransition(item));
-        stateHolder.getTransition().moveToState(to, item);
-        stateHolder.getAfter(from, to).forEach(handler -> handler.afterTransition(item));
-        stateHolder.getAfterAll().forEach(handler -> handler.afterTransition(item));
     }
 }

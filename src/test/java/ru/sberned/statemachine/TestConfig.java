@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sberned.statemachine.config.CustomState;
 import ru.sberned.statemachine.config.Item;
-import ru.sberned.statemachine.lock.MapStateLockProvider;
-import ru.sberned.statemachine.lock.StateLockProvider;
+import ru.sberned.statemachine.lock.MapLockProvider;
+import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.state.StateProvider;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * Created by empatuk on 10/11/2016.
  */
 @Configuration
-@EnableAutoConfiguration(exclude = StateConfig.class)
+@EnableAutoConfiguration(exclude = StateMachineConfig.class)
 public class TestConfig {
 
 
@@ -28,13 +28,13 @@ public class TestConfig {
     }
 
     @Bean
-    public StateLockProvider<String> stateLock() {
-        return new MapStateLockProvider<>();
+    public LockProvider<String> stateLock() {
+        return new MapLockProvider<>();
     }
 
     @Bean
-    public AbstractStateListener<Item, CustomState, String> stateListener() {
-        return new AbstractStateListener<Item, CustomState, String>() {};
+    public StateListener<Item, CustomState, String> stateListener() {
+        return new StateListener<>();
     }
 
     public static class CustomStateProvider implements StateProvider<Item, CustomState, String> {

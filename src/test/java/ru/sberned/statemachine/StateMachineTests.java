@@ -14,7 +14,7 @@ import ru.sberned.statemachine.config.Item;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 import ru.sberned.statemachine.state.AfterTransition;
 import ru.sberned.statemachine.state.BeforeTransition;
-import ru.sberned.statemachine.state.OnTransition;
+import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.state.StateChangedEvent;
 
 import java.util.*;
@@ -30,7 +30,7 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
 )
 public class StateMachineTests {
     @Autowired
-    private AbstractStateListener<Item, CustomState, String> stateListener;
+    private StateListener<Item, CustomState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
@@ -43,7 +43,7 @@ public class StateMachineTests {
     private AfterTransition<Item> afterTransition2 = mock(AfterTransition.class);
     private UnhandledMessageProcessor<Item> processor = mock(UnhandledMessageProcessor.class);
 
-    private class TestOnTransition implements OnTransition<Item, CustomState> {
+    private class TestOnTransition implements StateChanger<Item, CustomState> {
 
         @Override
         public void moveToState(CustomState state, Item item) {
@@ -51,7 +51,7 @@ public class StateMachineTests {
         }
     }
 
-    private class TimeoutOnTransition implements OnTransition<Item, CustomState> {
+    private class TimeoutOnTransition implements StateChanger<Item, CustomState> {
 
         @Override
         public void moveToState(CustomState state, Item item) {
@@ -64,8 +64,8 @@ public class StateMachineTests {
         }
     }
 
-    private StateMachine<Item, CustomState> getDefaultTransition(UnhandledMessageProcessor<Item> unhandled) {
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
+    private StateRepository<Item, CustomState> getDefaultTransition(UnhandledMessageProcessor<Item> unhandled) {
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
         return builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
@@ -90,17 +90,17 @@ public class StateMachineTests {
 
     @Test
     public void testCorrectStatesNoHandlers() {
-        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(null);
+        StateRepository<Item, CustomState> stateHolder = getDefaultTransition(null);
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE1));
         verify(onTransition, timeout(500).times(1)).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
     }
 
     @Test
     public void testCorrectStatesWithHandlersInOrder() {
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
-        StateMachine<Item, CustomState> stateHolder = builder
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
+        StateRepository<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .defineTransitions()
@@ -110,7 +110,7 @@ public class StateMachineTests {
                 .after(afterTransition1, afterTransition2)
                 .build();
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
 
         Item item = new Item("1", CustomState.START);
         stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
@@ -126,8 +126,8 @@ public class StateMachineTests {
     @Test
     public void testConflictingEventsLeadToOnlyOneStateChange() throws InterruptedException {
         Mockito.doCallRealMethod().when(onTransition).moveToState(any(CustomState.class), any(Item.class));
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
-        StateMachine<Item, CustomState> stateHolder = builder
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
+        StateRepository<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .defineTransitions()
@@ -138,7 +138,7 @@ public class StateMachineTests {
                 .to(CustomState.STATE2)
                 .build();
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
 
         publisher.publishEvent(new StateChangedEvent(this, Arrays.asList("1", "4"), CustomState.STATE1));
         publisher.publishEvent(new StateChangedEvent(this, Arrays.asList("1", "4"), CustomState.STATE2));
@@ -156,17 +156,17 @@ public class StateMachineTests {
 
     @Test
     public void testNoTransition() {
-        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(null);
+        StateRepository<Item, CustomState> stateHolder = getDefaultTransition(null);
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "2", CustomState.STATE1));
         verify(onTransition, timeout(500).times(0)).moveToState(CustomState.STATE1, new Item("2", CustomState.STATE1));
     }
 
     @Test
     public void testAnyHandlers() {
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
-        StateMachine<Item, CustomState> stateHolder = builder
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
+        StateRepository<Item, CustomState> stateHolder = builder
                 .setStateChanger(onTransition)
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .setAnyBefore(beforeTransition2)
@@ -178,7 +178,7 @@ public class StateMachineTests {
                 .after(afterTransition1)
                 .build();
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
         Item item = new Item("1", CustomState.START);
         stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
 
@@ -192,8 +192,8 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorTimeout() throws InterruptedException {
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
-        StateMachine<Item, CustomState> stateHolder = builder
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
+        StateRepository<Item, CustomState> stateHolder = builder
                 .setStateChanger(new TimeoutOnTransition())
                 .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
                 .setUnhandledMessageProcessor(processor)
@@ -205,7 +205,7 @@ public class StateMachineTests {
                 .to(CustomState.STATE2)
                 .build();
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
 
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE1));
         Thread.sleep(100);
@@ -216,9 +216,9 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorInvalidState() throws InterruptedException {
-        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(processor);
+        StateRepository<Item, CustomState> stateHolder = getDefaultTransition(processor);
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE2));
 
         verify(processor, timeout(1500).times(1)).process(new Item("1", CustomState.START), INVALID_TRANSITION, null);
@@ -226,8 +226,8 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorExecutionException() throws InterruptedException {
-        StateMachine<Item, CustomState> stateHolder = getDefaultTransition(processor);
-        stateListener.setStateHolder(stateHolder);
+        StateRepository<Item, CustomState> stateHolder = getDefaultTransition(processor);
+        stateListener.setStateRepository(stateHolder);
 
         RuntimeException ex = new RuntimeException();
         doThrow(ex).when(onTransition).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
@@ -239,8 +239,8 @@ public class StateMachineTests {
 
     @Test
     public void testStateNotPresentInStateHolder() throws InterruptedException {
-        StateMachine.StateHolderBuilder<Item, CustomState> builder = new StateMachine.StateHolderBuilder<>();
-        StateMachine<Item, CustomState> stateHolder = builder
+        StateRepository.StateRepositoryBuilder<Item, CustomState> builder = new StateRepository.StateRepositoryBuilder<>();
+        StateRepository<Item, CustomState> stateHolder = builder
                 .setStateChanger(new TimeoutOnTransition())
                 .setAvailableStates(EnumSet.of(CustomState.START, CustomState.FINISH))
                 .setUnhandledMessageProcessor(processor)
@@ -248,9 +248,9 @@ public class StateMachineTests {
                 .from(CustomState.START)
                 .to(CustomState.FINISH)
                 .build();
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
 
-        stateListener.setStateHolder(stateHolder);
+        stateListener.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent(this, "1", CustomState.STATE2));
 
         verify(processor, timeout(1500).times(1)).process(new Item("1", CustomState.START), INVALID_TRANSITION, null);

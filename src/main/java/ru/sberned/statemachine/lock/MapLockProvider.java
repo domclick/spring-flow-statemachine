@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by empatuk on 07/12/2016.
  */
 @Component
-public class MapStateLockProvider<K> implements StateLockProvider<K> {
+public class MapLockProvider<K> implements LockProvider<K> {
     LoadingCache<K, Lock> cache = CacheBuilder.newBuilder()
             .weakValues()
             .build(new CacheLoader<K, Lock>() {
