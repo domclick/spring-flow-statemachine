@@ -1,6 +1,7 @@
 package ru.sberned.statemachine.samples.simple.store;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.sberned.statemachine.samples.simple.SimpleItem;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jpatuk on 04/05/2017.
  */
-@Component
+@Repository
 public class ItemStore {
     private List<SimpleItem> items = new ArrayList<>();
 

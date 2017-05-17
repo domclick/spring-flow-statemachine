@@ -3,16 +3,13 @@ package ru.sberned.statemachine.samples.simple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.sberned.statemachine.StateListener;
 import ru.sberned.statemachine.StateMachine;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.StateChanger;
-import ru.sberned.statemachine.state.StateProvider;
+import ru.sberned.statemachine.state.ItemWithStateProvider;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by jpatuk on 25/04/2017.
@@ -21,18 +18,13 @@ import java.util.stream.Collectors;
 public class SimpleConfig {
 
     @Bean
-    public StateListener<SimpleItem, SimpleState, String> stateListener() {
-        return new StateListener<>();
-    }
-
-    @Bean
-    public StateMachine<SimpleItem, SimpleState> stateMachine() {
+    public StateMachine<SimpleItem, SimpleState, String> stateListener() {
         return new StateMachine<>();
     }
 
     @Bean
-    public StateProvider<SimpleItem, SimpleState, String> stateProvider() {
-        return new MapStateProvider();
+    public ItemWithStateProvider<SimpleItem, String> stateProvider() {
+        return new ListStateProvider();
     }
 
     @Bean
@@ -40,14 +32,13 @@ public class SimpleConfig {
         return new StateHandler();
     }
 
-    public static class MapStateProvider implements StateProvider<SimpleItem, SimpleState, String> {
+    public static class ListStateProvider implements ItemWithStateProvider<SimpleItem, String> {
         @Autowired
         private ItemStore store;
 
         @Override
-        public Map<SimpleItem, SimpleState> getItemsState(List<String> ids) {
-            return store.getItemsById(ids).stream()
-                    .collect(Collectors.toMap(Function.identity(), SimpleItem::getState));
+        public Collection<SimpleItem> getItemsByIds(List<String> ids) {
+            return store.getItemsById(ids);
         }
     }
 

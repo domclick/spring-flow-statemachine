@@ -8,7 +8,6 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<modules>
 		<module>state-machine-core</module>
-		<module>state-machine-samples</module>
         <module>state-machine-starter</module>
     </modules>
 	<packaging>pom</packaging>

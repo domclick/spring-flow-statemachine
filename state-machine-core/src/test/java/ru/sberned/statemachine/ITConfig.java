@@ -10,7 +10,7 @@ import ru.sberned.statemachine.util.DBStateProvider;
 import ru.sberned.statemachine.util.Item;
 import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.lock.MapLockProvider;
-import ru.sberned.statemachine.state.StateProvider;
+import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 import javax.sql.DataSource;
 
@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @Configuration
 public class ITConfig {
     @Bean
-    public StateProvider<Item, CustomState, String> stateProvider() {
+    public ItemWithStateProvider<Item, String> stateProvider() {
         return new DBStateProvider();
     }
 
@@ -30,12 +30,7 @@ public class ITConfig {
     }
 
     @Bean
-    public StateListener<Item, CustomState, String> stateListener() {
-        return new StateListener<>();
-    }
-
-    @Bean
-    public StateMachine<Item, CustomState> stateMachine() {
+    public StateMachine<Item, CustomState, String> stateListener() {
         return new StateMachine<>();
     }
 

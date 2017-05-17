@@ -31,7 +31,7 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
 )
 public class StateMachineTests {
     @Autowired
-    private StateListener<Item, CustomState, String> stateListener;
+    private StateMachine<Item, CustomState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
@@ -117,7 +117,7 @@ public class StateMachineTests {
         when(beforeTransition1.beforeTransition(item)).thenReturn(true);
         when(beforeTransition2.beforeTransition(item)).thenReturn(true);
 
-        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
+        stateListener.handleMessage(item, CustomState.STATE1);
 
         InOrder inOrder = inOrder(beforeTransition1, beforeTransition2, onTransition, afterTransition1, afterTransition2);
         inOrder.verify(beforeTransition1, times(1)).beforeTransition(item);
@@ -152,9 +152,9 @@ public class StateMachineTests {
         verify(onTransition, timeout(500).times(1)).moveToState(any(CustomState.class), eq(new Item("1", CustomState.START)));
         verify(onTransition, timeout(500).times(1)).moveToState(any(CustomState.class), eq(new Item("4", CustomState.START)));
         verify(onTransition, timeout(500).times(1)).moveToState(any(CustomState.class), eq(new Item("6", CustomState.START)));
-        Map<Item, CustomState> modifiedItems = stateProvider.getItemsState(Arrays.asList("1", "4"));
+        Collection<Item> modifiedItems = stateProvider.getItemsByIds(Arrays.asList("1", "4"));
         assertEquals(modifiedItems.size(), 2);
-        Item[] items = modifiedItems.keySet().toArray(new Item[2]);
+        Item[] items = modifiedItems.toArray(new Item[2]);
         assertEquals(items[0].getState(), items[1].getState());
     }
 
@@ -187,7 +187,7 @@ public class StateMachineTests {
         when(beforeTransition1.beforeTransition(item)).thenReturn(true);
         when(beforeTransition2.beforeTransition(item)).thenReturn(true);
 
-        stateListener.handleMessage(item, CustomState.START, CustomState.STATE1);
+        stateListener.handleMessage(item, CustomState.STATE1);
 
         InOrder inOrder = inOrder(beforeTransition2, beforeTransition1, onTransition, afterTransition2, afterTransition1);
         inOrder.verify(beforeTransition2, times(1)).beforeTransition(item);

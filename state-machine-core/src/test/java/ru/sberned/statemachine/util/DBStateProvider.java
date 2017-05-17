@@ -5,11 +5,12 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.sberned.statemachine.state.StateChanger;
-import ru.sberned.statemachine.state.StateProvider;
+import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,17 +18,18 @@ import java.util.stream.Collectors;
 /**
  * Created by jpatuk on 02/05/2017.
  */
-public class DBStateProvider implements StateProvider<Item, CustomState, String>, StateChanger<Item, CustomState> {
+public class DBStateProvider implements ItemWithStateProvider<Item, String>, StateChanger<Item, CustomState> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Map<Item, CustomState> getItemsState(List<String> ids) {
+    public Collection<Item> getItemsByIds(List<String> ids) {
         List<Map<String, Object>> items = jdbcTemplate.queryForList("SELECT id, state FROM item WHERE id IN (?)",
                 ids.stream().collect(Collectors.joining( "," )));
-        return items.stream().collect(Collectors.toMap(
-                m -> new Item((String) m.get("id"), CustomState.getByName((String) m.get("state"))),
-                m -> CustomState.getByName((String) m.get("state"))));
+        return items
+                .stream()
+                .map(m -> new Item((String) m.get("id"), CustomState.getByName((String) m.get("state"))))
+                .collect(Collectors.toList());
     }
 
     public void insertItems(List<Item> items) {

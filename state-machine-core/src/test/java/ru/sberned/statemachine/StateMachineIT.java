@@ -29,7 +29,7 @@ import static ru.sberned.statemachine.util.CustomState.STATE1;
 )
 public class StateMachineIT {
     @Autowired
-    private StateListener<Item, CustomState, String> stateListener;
+    private StateMachine<Item, CustomState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
@@ -97,10 +97,10 @@ public class StateMachineIT {
         verifyState(Collections.singletonList("2"), START);
     }
 
-    private void verifyState(List<String> items, CustomState expectedState) {
-        Map<Item, CustomState> itemsMap= stateProvider.getItemsState(items);
-        itemsMap.forEach((k, v) ->
-                assertEquals(expectedState, v)
+    private void verifyState(List<String> ids, CustomState expectedState) {
+        Collection<Item> itemsList = stateProvider.getItemsByIds(ids);
+        itemsList.forEach(item ->
+                assertEquals(expectedState, item.getState())
         );
     }
 }

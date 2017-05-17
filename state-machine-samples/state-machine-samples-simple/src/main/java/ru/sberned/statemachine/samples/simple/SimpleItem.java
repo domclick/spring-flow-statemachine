@@ -1,11 +1,11 @@
 package ru.sberned.statemachine.samples.simple;
 
-import ru.sberned.statemachine.state.HasId;
+import ru.sberned.statemachine.state.HasStateAndId;
 
 /**
  * Created by jpatuk on 04/05/2017.
  */
-public class SimpleItem implements HasId<String> {
+public class SimpleItem implements HasStateAndId<String, SimpleState> {
     private String id;
     private SimpleState state = SimpleState.STARTED;
 
@@ -28,6 +28,7 @@ public class SimpleItem implements HasId<String> {
         return id.hashCode();
     }
 
+    @Override
     public SimpleState getState() {
         return state;
     }

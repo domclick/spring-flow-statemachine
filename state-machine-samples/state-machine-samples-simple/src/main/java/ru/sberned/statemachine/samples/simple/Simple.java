@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationEventPublisher;
-import ru.sberned.statemachine.StateListener;
+import ru.sberned.statemachine.StateMachine;
 import ru.sberned.statemachine.StateRepository;
 import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
@@ -26,9 +26,9 @@ import static ru.sberned.statemachine.samples.simple.SimpleState.*;
 @SuppressWarnings("unchecked")
 @SpringBootApplication
 public class Simple implements CommandLineRunner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StateListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
     @Autowired
-    private StateListener<SimpleItem, SimpleState, String> stateListener;
+    private StateMachine<SimpleItem, SimpleState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
