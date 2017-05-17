@@ -1,0 +1,6 @@
+CREATE TABLE item (
+  id VARCHAR(256) NOT NULL,
+  state VARCHAR(6),
+  PRIMARY KEY (id),
+  CHECK (state IN ('START', 'STATE1', 'STATE2', 'STATE3', 'STATE4', 'FINISH', 'CANCEL'))
+);
