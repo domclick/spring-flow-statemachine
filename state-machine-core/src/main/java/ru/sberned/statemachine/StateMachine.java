@@ -14,6 +14,7 @@ import ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType;
 import ru.sberned.statemachine.state.HasStateAndId;
 import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
+import ru.sberned.statemachine.state.StateChanger;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -31,68 +32,78 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
     @Autowired
     private ItemWithStateProvider<ENTITY, ID> stateProvider;
     @Autowired
+    StateChanger<ENTITY, STATE> stateChanger;
+    @Autowired
     private LockProvider lockProvider;
     @Autowired
     private StateMachine<ENTITY, STATE, ID> stateMachine;
-    private StateRepository<ENTITY, STATE> stateRepository;
+    private StateRepository<ENTITY, STATE, ID> stateRepository;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;
 
-    public void setStateRepository(StateRepository<ENTITY, STATE> stateRepository) {
+    public void setStateRepository(StateRepository<ENTITY, STATE, ID> stateRepository) {
         this.stateRepository = stateRepository;
     }
 
     @EventListener
     public synchronized void handleStateChanged(StateChangedEvent<STATE, ID> event) {
         Assert.notNull(stateRepository);
-        Collection<ENTITY> items = stateProvider.getItemsByIds(event.getIds());
 
-        items.forEach(item -> CompletableFuture.supplyAsync(() -> {
-            handleMessage(item, event.getNewState());
-            return null;
-        }));
+        if (event.getIds() != null) {
+            event.getIds().forEach(id -> CompletableFuture.supplyAsync(() -> {
+                stateMachine.handleMessage(id, event.getNewState(), event.getInfo());
+                return null;
+            }));
+        }
     }
 
-    void handleMessage(ENTITY entity, STATE newState) {
-        STATE currentState = entity.getState();
-        Lock lockObject = lockProvider.getLockObject(entity.getId());
+    @Transactional
+    public void handleMessage(ID id, STATE newState, Object info) {
+        Lock lockObject = lockProvider.getLockObject(id);
         boolean locked = false;
         try {
             if (locked = lockObject.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
+                ENTITY entity = stateProvider.getItemById(id);
+                if (entity == null) {
+                    handleIncorrectCase(null, null, ENTITY_NOT_FOUND, null);
+                    return;
+                }
+
+                STATE currentState = entity.getState();
                 if (stateRepository.isValidTransition(currentState, newState)) {
-                    stateMachine.processItem(entity, currentState, newState);
+                    stateMachine.processItem(entity, currentState, newState, info);
                 } else {
-                    handleIncorrectCase(entity, currentState, INVALID_TRANSITION, null);
+                    handleIncorrectCase(id, currentState, INVALID_TRANSITION, null);
                 }
             } else {
-                handleIncorrectCase(entity, currentState, TIMEOUT, null);
+                handleIncorrectCase(id, newState, TIMEOUT, null);
             }
         } catch (InterruptedException e) {
-            handleIncorrectCase(entity, currentState, INTERRUPTED_EXCEPTION, e);
+            handleIncorrectCase(id, newState, INTERRUPTED_EXCEPTION, e);
         } catch (Exception e) {
-            handleIncorrectCase(entity, currentState, EXECUTION_EXCEPTION, e);
+            handleIncorrectCase(id, newState, EXECUTION_EXCEPTION, e);
         } finally {
             if (locked) lockObject.unlock();
         }
     }
 
-    private void handleIncorrectCase(ENTITY entity, STATE currentState, IssueType issueType, Exception e) {
-        String errorMsg = MessageFormat.format("Processing for item {0} failed. State is {1}. Issue type is {2}", entity, currentState, issueType);
+    private void handleIncorrectCase(ID id, STATE newState, IssueType issueType, Exception e) {
+        String errorMsg = MessageFormat.format("Processing for item with id {0} failed. New state is {1}. Issue type is {2}", id, newState, issueType);
 
         if (e != null) LOGGER.error(errorMsg, e);
         else LOGGER.error(errorMsg);
 
-        UnhandledMessageProcessor<ENTITY> unhandledMessageProcessor = stateRepository.getUnhandledMessageProcessor();
+        UnhandledMessageProcessor<ID> unhandledMessageProcessor = stateRepository.getUnhandledMessageProcessor();
         if (unhandledMessageProcessor != null) {
-            unhandledMessageProcessor.process(entity, issueType, e);
+            unhandledMessageProcessor.process(id, issueType, e);
         }
     }
 
     // public is here to make @Transactional work
     @Transactional
-    public void processItem(ENTITY item, STATE from, STATE to) {
+    public void processItem(ENTITY item, STATE from, STATE to, Object info) {
         stateRepository.getBeforeAll().forEach(handler -> {
-            if (!handler.beforeTransition(item)) {
+            if (!handler.beforeTransition(item, to)) {
                 throw new UnableToProcessException();
             }
         });
@@ -101,8 +112,14 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
                 throw new UnableToProcessException();
             }
         });
-        stateRepository.getStateChanger().moveToState(to, item);
+
+        if (info != null) {
+            stateChanger.moveToState(to, item, info);
+        } else {
+            stateChanger.moveToState(to, item);
+        }
+
         stateRepository.getAfter(from, to).forEach(handler -> handler.afterTransition(item));
-        stateRepository.getAfterAll().forEach(handler -> handler.afterTransition(item));
+        stateRepository.getAfterAll().forEach(handler -> handler.afterTransition(item, to));
     }
 }

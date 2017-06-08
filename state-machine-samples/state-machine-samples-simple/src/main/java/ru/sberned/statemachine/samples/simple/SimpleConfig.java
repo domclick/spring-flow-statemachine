@@ -8,9 +8,6 @@ import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * Created by jpatuk on 25/04/2017.
  */
@@ -37,8 +34,8 @@ public class SimpleConfig {
         private ItemStore store;
 
         @Override
-        public Collection<SimpleItem> getItemsByIds(List<String> ids) {
-            return store.getItemsById(ids);
+        public SimpleItem getItemById(String id) {
+            return store.getItem(id);
         }
     }
 

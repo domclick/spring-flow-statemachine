@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.DBStateProvider;
 import ru.sberned.statemachine.util.Item;
@@ -21,6 +22,11 @@ import javax.sql.DataSource;
 public class ITConfig {
     @Bean
     public ItemWithStateProvider<Item, String> stateProvider() {
+        return new DBStateProvider();
+    }
+
+    @Bean
+    public StateChanger<Item, CustomState> stateChanger() {
         return new DBStateProvider();
     }
 

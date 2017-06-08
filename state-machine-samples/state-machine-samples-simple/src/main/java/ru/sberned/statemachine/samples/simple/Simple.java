@@ -28,22 +28,19 @@ import static ru.sberned.statemachine.samples.simple.SimpleState.*;
 public class Simple implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
     @Autowired
-    private StateMachine<SimpleItem, SimpleState, String> stateListener;
+    private StateMachine<SimpleItem, SimpleState, String> stateMachine;
     @Autowired
     private ApplicationEventPublisher publisher;
-    @Autowired
-    private StateChanger<SimpleItem, SimpleState> stateChanger;
     @Autowired
     private ItemStore store;
 
     @PostConstruct
     public void configure() {
-        StateRepositoryBuilder<SimpleItem, SimpleState> builder = new StateRepositoryBuilder<>();
-        StateRepository<SimpleItem, SimpleState> repository = builder
-                .setStateChanger(stateChanger)
+        StateRepositoryBuilder<SimpleItem, SimpleState, String> builder = new StateRepositoryBuilder<>();
+        StateRepository<SimpleItem, SimpleState, String> repository = builder
                 .setAvailableStates(EnumSet.allOf(SimpleState.class))
-                .setUnhandledMessageProcessor((item, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item.getId(), type))
-                .setAnyBefore((BeforeTransition<SimpleItem>) item -> {
+                .setUnhandledMessageProcessor((item, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item, type))
+                .setAnyBefore((BeforeAnyTransition<SimpleItem, SimpleState>) (item, state) -> {
                     LOGGER.info("Started working on item with id {}", item.getId());
                     return true;
                 })
@@ -61,7 +58,7 @@ public class Simple implements CommandLineRunner {
                 .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from CANCELED"))
                 .build();
 
-        stateListener.setStateRepository(repository);
+        stateMachine.setStateRepository(repository);
     }
 
     public static void main(String[] args) throws Exception {
@@ -107,7 +104,7 @@ public class Simple implements CommandLineRunner {
                     break;
                 }
                 SimpleState state = SimpleState.getByName(predicates[2]);
-                publisher.publishEvent(new StateChangedEvent<>(this, Collections.singletonList(store.getItem(predicates[1])), state));
+                publisher.publishEvent(new StateChangedEvent<>(Collections.singletonList(store.getItem(predicates[1])), state));
                 break;
             case "EXIT":
                 System.exit(0);

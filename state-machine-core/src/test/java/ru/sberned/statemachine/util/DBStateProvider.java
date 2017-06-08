@@ -10,10 +10,7 @@ import ru.sberned.statemachine.state.ItemWithStateProvider;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by jpatuk on 02/05/2017.
@@ -23,13 +20,9 @@ public class DBStateProvider implements ItemWithStateProvider<Item, String>, Sta
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<Item> getItemsByIds(List<String> ids) {
-        List<Map<String, Object>> items = jdbcTemplate.queryForList("SELECT id, state FROM item WHERE id IN (?)",
-                ids.stream().collect(Collectors.joining( "," )));
-        return items
-                .stream()
-                .map(m -> new Item((String) m.get("id"), CustomState.getByName((String) m.get("state"))))
-                .collect(Collectors.toList());
+    public Item getItemById(String id) {
+        return jdbcTemplate.queryForObject("SELECT id, state FROM item WHERE id = ?", new Object[]{id},
+                (resultSet, i) -> new Item(resultSet.getString("id"), CustomState.getByName(resultSet.getString("state"))));
     }
 
     public void insertItems(List<Item> items) {

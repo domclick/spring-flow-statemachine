@@ -2,15 +2,14 @@ package ru.sberned.statemachine;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.Item;
 import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.lock.MapLockProvider;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by jpatuk on 10/11/2016.
@@ -32,6 +31,11 @@ public class TestConfig {
         return new StateMachine<>();
     }
 
+    @Bean
+    public StateChanger<Item, CustomState> stateChanger() {
+        return new TestOnTransition();
+    }
+
     public static class CustomStateProvider implements ItemWithStateProvider<Item, String> {
         private List<Item> items;
 
@@ -40,8 +44,22 @@ public class TestConfig {
         }
 
         @Override
-        public Collection<Item> getItemsByIds(List<String> ids) {
-            return items.stream().filter(item -> ids.contains(item.getId())).collect(Collectors.toList());
+        public Item getItemById(String id) {
+            for (Item item : items) {
+                if (item.getId().equals(id)) {
+                    return item;
+                }
+            }
+            return null;
+        }
+    }
+
+    private class TestOnTransition implements StateChanger<Item, CustomState> {
+
+        @Override
+        public void moveToState(CustomState state, Item item) {
+            System.out.println("state is " + state + ", item id is " + item.getId() + ", item state is " + item.getState());
+            item.state = state;
         }
     }
 }
