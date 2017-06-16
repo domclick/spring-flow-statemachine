@@ -1,10 +1,8 @@
 package ru.sberned.statemachine;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.DBStateProvider;
@@ -13,12 +11,11 @@ import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.lock.MapLockProvider;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
-import javax.sql.DataSource;
-
 /**
  * Created by jpatuk on 25/04/2017.
  */
 @Configuration
+@EnableAutoConfiguration
 public class ITConfig {
     @Bean
     public ItemWithStateProvider<Item, String> stateProvider() {
@@ -38,19 +35,5 @@ public class ITConfig {
     @Bean
     public StateMachine<Item, CustomState, String> stateListener() {
         return new StateMachine<>();
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder
-                .setType(EmbeddedDatabaseType.H2)
-                .addScript("schema.sql")
-                .build();
-    }
-
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
     }
 }

@@ -57,7 +57,7 @@ public class TestConfig {
     private class TestOnTransition implements StateChanger<Item, CustomState> {
 
         @Override
-        public void moveToState(CustomState state, Item item) {
+        public void moveToState(CustomState state, Item item, Object... infos) {
             System.out.println("state is " + state + ", item id is " + item.getId() + ", item state is " + item.getState());
             item.state = state;
         }

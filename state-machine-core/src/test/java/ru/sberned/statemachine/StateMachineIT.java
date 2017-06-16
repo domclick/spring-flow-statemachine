@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
 import ru.sberned.statemachine.state.AfterAnyTransition;
 import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.util.CustomState;
@@ -48,10 +49,9 @@ public class StateMachineIT {
     }
 
     @Test
-    public void testStateUpdated() {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> repository = builder
-                .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
+    public void testStateUpdated() throws InterruptedException {
+        StateRepository<Item, CustomState, String> repository = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .defineTransitions()
                 .from(CustomState.START)
                 .to(STATE1)
@@ -64,21 +64,24 @@ public class StateMachineIT {
         List<String> items = Arrays.asList("1", "2");
         publisher.publishEvent(new StateChangedEvent<>(items, STATE1));
 
+        // events are handled in async mode
+        Thread.sleep(2000);
         verifyState(items, STATE1);
 
         publisher.publishEvent(new StateChangedEvent<>(items, FINISH));
 
+        // events are handled in async mode
+        Thread.sleep(2000);
         verifyState(items, FINISH);
     }
 
     @Test
-    public void testRollback() {
-        final String failedId = "2";
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> repository = builder
-                .setAvailableStates(EnumSet.<CustomState>allOf(CustomState.class))
+    public void testRollback() throws InterruptedException {
+        final List<String> failedIds = Arrays.asList("2", "4");
+        StateRepository<Item, CustomState, String> repository = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .setAnyAfter((AfterAnyTransition<Item, CustomState>) (item, stateFrom) -> {
-                    if (item.getId().equals(failedId)) {
+                    if (failedIds.contains(item.getId())) {
                         throw new RuntimeException("just to check");
                     }
                 })
@@ -88,11 +91,14 @@ public class StateMachineIT {
                 .build();
 
         stateMachine.setStateRepository(repository);
-        List<String> items = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
+        List<String> items = Arrays.asList("1", "2", "4", "5", "6", "7");
         publisher.publishEvent(new StateChangedEvent<>(items, STATE1));
 
-        verifyState(Arrays.asList("1", "3", "4", "5", "6", "7"), STATE1);
-        verifyState(Collections.singletonList("2"), START);
+        // events are handled in async mode
+        Thread.sleep(2000);
+
+        verifyState(Arrays.asList("2", "3", "4"), START);
+        verifyState(Arrays.asList("1", "5", "6", "7"), STATE1);
     }
 
     private void verifyState(List<String> ids, CustomState expectedState) {

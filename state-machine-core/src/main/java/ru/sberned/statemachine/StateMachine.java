@@ -17,7 +17,6 @@ import ru.sberned.statemachine.state.ItemWithStateProvider;
 import ru.sberned.statemachine.state.StateChanger;
 
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -51,14 +50,21 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
 
         if (event.getIds() != null) {
             event.getIds().forEach(id -> CompletableFuture.supplyAsync(() -> {
-                stateMachine.handleMessage(id, event.getNewState(), event.getInfo());
+                try {
+                    stateMachine.handleMessage(id, event.getNewState(), event.getInfo());
+                } catch (InterruptedException e) {
+                    handleIncorrectCase(id, event.getNewState(), INTERRUPTED_EXCEPTION, e);
+                } catch (Exception e) {
+                    handleIncorrectCase(id, event.getNewState(), EXECUTION_EXCEPTION, e);
+                }
                 return null;
             }));
         }
     }
 
-    @Transactional
-    public void handleMessage(ID id, STATE newState, Object info) {
+    // public is here to make @Transactional work
+    @Transactional(rollbackFor = {Exception.class})
+    public void handleMessage(ID id, STATE newState, Object info) throws Exception {
         Lock lockObject = lockProvider.getLockObject(id);
         boolean locked = false;
         try {
@@ -71,17 +77,13 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
 
                 STATE currentState = entity.getState();
                 if (stateRepository.isValidTransition(currentState, newState)) {
-                    stateMachine.processItem(entity, currentState, newState, info);
+                    processItem(entity, currentState, newState, info);
                 } else {
                     handleIncorrectCase(id, currentState, INVALID_TRANSITION, null);
                 }
             } else {
                 handleIncorrectCase(id, newState, TIMEOUT, null);
             }
-        } catch (InterruptedException e) {
-            handleIncorrectCase(id, newState, INTERRUPTED_EXCEPTION, e);
-        } catch (Exception e) {
-            handleIncorrectCase(id, newState, EXECUTION_EXCEPTION, e);
         } finally {
             if (locked) lockObject.unlock();
         }
@@ -99,9 +101,7 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
         }
     }
 
-    // public is here to make @Transactional work
-    @Transactional
-    public void processItem(ENTITY item, STATE from, STATE to, Object info) {
+    private void processItem(ENTITY item, STATE from, STATE to, Object info) {
         stateRepository.getBeforeAll().forEach(handler -> {
             if (!handler.beforeTransition(item, to)) {
                 throw new UnableToProcessException();

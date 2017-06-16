@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
 import ru.sberned.statemachine.state.*;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.Item;
@@ -45,7 +46,7 @@ public class StateMachineTests {
     private class TimeoutOnTransition implements StateChanger<Item, CustomState> {
 
         @Override
-        public void moveToState(CustomState state, Item item) {
+        public void moveToState(CustomState state, Item item, Object... infos) {
             try {
                 Thread.sleep(2000);
                 item.state = state;
@@ -56,8 +57,7 @@ public class StateMachineTests {
     }
 
     private StateRepository<Item, CustomState, String> getDefaultTransition(UnhandledMessageProcessor<String> unhandled) {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        return builder
+        return StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .setUnhandledMessageProcessor(unhandled)
                 .defineTransitions()
@@ -88,9 +88,8 @@ public class StateMachineTests {
     }
 
     @Test
-    public void testCorrectStatesWithHandlersInOrder() {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> stateHolder = builder
+    public void testCorrectStatesWithHandlersInOrder() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .defineTransitions()
                 .from(CustomState.START)
@@ -117,8 +116,7 @@ public class StateMachineTests {
 
     @Test
     public void testConflictingEventsLeadToOnlyOneStateChange() throws InterruptedException {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> stateHolder = builder
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .defineTransitions()
                 .from(CustomState.START)
@@ -150,11 +148,10 @@ public class StateMachineTests {
     }
 
     @Test
-    public void testAnyHandlers() {
+    public void testAnyHandlers() throws Exception {
         BeforeAnyTransition<Item, CustomState> beforeAny = mock(BeforeAnyTransition.class);
         AfterAnyTransition<Item, CustomState> afterAny = mock(AfterAnyTransition.class);
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> stateHolder = builder
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .setAnyBefore(beforeAny)
                 .setAnyAfter(afterAny)
@@ -182,8 +179,7 @@ public class StateMachineTests {
 
     @Test
     public void testUnhandledMessageProcessorTimeout() throws InterruptedException {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> stateHolder = builder
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .setUnhandledMessageProcessor(processor)
                 .defineTransitions()
@@ -230,8 +226,7 @@ public class StateMachineTests {
 
     @Test
     public void testStateNotPresentInStateHolder() throws InterruptedException {
-        StateRepository.StateRepositoryBuilder<Item, CustomState, String> builder = new StateRepository.StateRepositoryBuilder<>();
-        StateRepository<Item, CustomState, String> stateHolder = builder
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.of(CustomState.START, CustomState.FINISH))
                 .setUnhandledMessageProcessor(processor)
                 .defineTransitions()

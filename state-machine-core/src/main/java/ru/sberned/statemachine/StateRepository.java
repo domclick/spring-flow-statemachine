@@ -78,8 +78,12 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
     public static class StateRepositoryBuilder<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
         private StateRepository<ENTITY, STATE, ID> stateRepository;
 
-        public StateRepositoryBuilder() {
+        private StateRepositoryBuilder() {
             stateRepository = new StateRepository<>();
+        }
+
+        public static <ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> StateRepositoryBuilder<ENTITY, STATE, ID> configure() {
+            return new StateRepositoryBuilder<>();
         }
 
 

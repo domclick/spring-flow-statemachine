@@ -3,12 +3,10 @@ package ru.sberned.statemachine.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -42,20 +40,11 @@ public class DBStateProvider implements ItemWithStateProvider<Item, String>, Sta
     }
 
     @Override
-    public void moveToState(CustomState state, Item item) {
+    public void moveToState(CustomState state, Item item, Object... infos) {
         jdbcTemplate.update("UPDATE item SET state = ? WHERE id = ?", state.name(), item.getId());
     }
 
     public void cleanItems() {
         jdbcTemplate.update("DELETE FROM item");
-    }
-
-    public static class ItemRowMapper implements RowMapper<Item> {
-
-        @Override
-        public Item mapRow(ResultSet rs, int rowNum) throws SQLException {
-            CustomState state = CustomState.getByName(rs.getString("state"));
-            return new Item(rs.getString("id"), state);
-        }
     }
 }
