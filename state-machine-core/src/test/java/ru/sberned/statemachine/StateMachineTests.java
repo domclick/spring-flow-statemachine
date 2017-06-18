@@ -12,15 +12,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
 import ru.sberned.statemachine.state.*;
 import ru.sberned.statemachine.util.CustomState;
+import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 
 import java.util.*;
 
 import static org.mockito.Mockito.*;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.EXECUTION_EXCEPTION;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.INVALID_TRANSITION;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.TIMEOUT;
 
 @SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
@@ -33,7 +31,7 @@ public class StateMachineTests {
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
-    private TestConfig.CustomStateProvider stateProvider;
+    private CustomStateProvider stateProvider;
     @SpyBean
     private StateChanger<Item, CustomState> onTransition;
 
@@ -41,20 +39,6 @@ public class StateMachineTests {
     private BeforeTransition<Item> beforeTransition2 = mock(BeforeTransition.class);
     private AfterTransition<Item> afterTransition1 = mock(AfterTransition.class);
     private AfterTransition<Item> afterTransition2 = mock(AfterTransition.class);
-    private UnhandledMessageProcessor<String> processor = mock(UnhandledMessageProcessor.class);
-
-    private class TimeoutOnTransition implements StateChanger<Item, CustomState> {
-
-        @Override
-        public void moveToState(CustomState state, Item item, Object... infos) {
-            try {
-                Thread.sleep(2000);
-                item.state = state;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     private StateRepository<Item, CustomState, String> getDefaultTransition(UnhandledMessageProcessor<String> unhandled) {
         return StateRepositoryBuilder.<Item, CustomState, String>configure()
@@ -175,69 +159,5 @@ public class StateMachineTests {
         inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, item);
         inOrder.verify(afterTransition1, times(1)).afterTransition(item);
         inOrder.verify(afterAny, times(1)).afterTransition(item, CustomState.STATE1);
-    }
-
-    @Test
-    public void testUnhandledMessageProcessorTimeout() throws InterruptedException {
-        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
-                .setAvailableStates(EnumSet.allOf(CustomState.class))
-                .setUnhandledMessageProcessor(processor)
-                .defineTransitions()
-                .from(CustomState.START)
-                .to(CustomState.STATE1)
-                .and()
-                .from(CustomState.STATE1)
-                .to(CustomState.STATE2)
-                .build();
-
-        stateMachine.setStateRepository(stateHolder);
-        stateMachine.stateChanger = new TimeoutOnTransition();
-
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1));
-        Thread.sleep(100);
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE2));
-
-        verify(processor, timeout(3000).times(1)).process("1", TIMEOUT, null);
-        stateMachine.stateChanger = onTransition;
-    }
-
-    @Test
-    public void testUnhandledMessageProcessorInvalidState() throws InterruptedException {
-        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition(processor);
-
-        stateMachine.setStateRepository(stateHolder);
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE2));
-
-        verify(processor, timeout(1500).times(1)).process("1", INVALID_TRANSITION, null);
-    }
-
-    @Test
-    public void testUnhandledMessageProcessorExecutionException() throws InterruptedException {
-        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition(processor);
-        stateMachine.setStateRepository(stateHolder);
-
-        RuntimeException ex = new RuntimeException();
-        doThrow(ex).when(onTransition).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
-
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1));
-
-        verify(processor, timeout(1500).times(1)).process("1", EXECUTION_EXCEPTION, ex);
-    }
-
-    @Test
-    public void testStateNotPresentInStateHolder() throws InterruptedException {
-        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
-                .setAvailableStates(EnumSet.of(CustomState.START, CustomState.FINISH))
-                .setUnhandledMessageProcessor(processor)
-                .defineTransitions()
-                .from(CustomState.START)
-                .to(CustomState.FINISH)
-                .build();
-        stateMachine.setStateRepository(stateHolder);
-
-        stateMachine.setStateRepository(stateHolder);
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE2));
-
-        verify(processor, timeout(1500).times(1)).process("1", INVALID_TRANSITION, null);
     }
 }

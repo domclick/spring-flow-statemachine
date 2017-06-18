@@ -28,17 +28,24 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
  */
 public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
-    @Autowired
-    private ItemWithStateProvider<ENTITY, ID> stateProvider;
-    @Autowired
-    StateChanger<ENTITY, STATE> stateChanger;
-    @Autowired
-    private LockProvider lockProvider;
+    private final ItemWithStateProvider<ENTITY, ID> stateProvider;
+    private final StateChanger<ENTITY, STATE> stateChanger;
+    private final LockProvider lockProvider;
+    // To make Transactional work
     @Autowired
     private StateMachine<ENTITY, STATE, ID> stateMachine;
     private StateRepository<ENTITY, STATE, ID> stateRepository;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;
+
+    @Autowired
+    public StateMachine(ItemWithStateProvider<ENTITY, ID> stateProvider,
+                        StateChanger<ENTITY, STATE> stateChanger,
+                        LockProvider lockProvider) {
+        this.stateProvider = stateProvider;
+        this.stateChanger = stateChanger;
+        this.lockProvider = lockProvider;
+    }
 
     public void setStateRepository(StateRepository<ENTITY, STATE, ID> stateRepository) {
         this.stateRepository = stateRepository;
@@ -46,7 +53,7 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
 
     @EventListener
     public synchronized void handleStateChanged(StateChangedEvent<STATE, ID> event) {
-        Assert.notNull(stateRepository);
+        Assert.notNull(stateRepository, "StateRepository must be initialized!");
 
         if (event.getIds() != null) {
             event.getIds().forEach(id -> CompletableFuture.supplyAsync(() -> {

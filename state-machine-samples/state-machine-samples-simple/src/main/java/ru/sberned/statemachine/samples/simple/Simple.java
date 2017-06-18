@@ -8,7 +8,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.*;
 
-import java.util.Collections;
 import java.util.Scanner;
 
 

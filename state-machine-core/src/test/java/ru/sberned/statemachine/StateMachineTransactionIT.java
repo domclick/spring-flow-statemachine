@@ -28,7 +28,7 @@ import static ru.sberned.statemachine.util.CustomState.STATE1;
 @SpringBootTest(
         classes = ITConfig.class
 )
-public class StateMachineIT {
+public class StateMachineTransactionIT {
     @Autowired
     private StateMachine<Item, CustomState, String> stateMachine;
     @Autowired

@@ -33,7 +33,7 @@ public class ITConfig {
     }
 
     @Bean
-    public StateMachine<Item, CustomState, String> stateListener() {
-        return new StateMachine<>();
+    public StateMachine<Item, CustomState, String> stateMachine() {
+        return new StateMachine<>(stateProvider(), stateChanger(), stateLock());
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import ru.sberned.statemachine.StateMachine;
 import ru.sberned.statemachine.StateRepository;
 import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
+import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.AfterTransition;
 import ru.sberned.statemachine.state.BeforeAnyTransition;
@@ -25,6 +26,9 @@ import static ru.sberned.statemachine.samples.simple.SimpleState.*;
 @Configuration
 public class SimpleConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleConfig.class);
+
+    @Autowired
+    private LockProvider lockProvider;
 
     @Bean
     public StateMachine<SimpleItem, SimpleState, String> stateMachine() {
@@ -49,7 +53,7 @@ public class SimpleConfig {
                 .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from CANCELED"))
                 .build();
 
-        StateMachine<SimpleItem, SimpleState, String> stateMachine = new StateMachine<>();
+        StateMachine<SimpleItem, SimpleState, String> stateMachine = new StateMachine<>(stateProvider(), stateChanger(), lockProvider);
         stateMachine.setStateRepository(repository);
         return stateMachine;
     }
