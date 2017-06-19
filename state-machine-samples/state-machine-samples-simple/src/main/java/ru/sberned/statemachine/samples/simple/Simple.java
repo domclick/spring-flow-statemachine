@@ -1,68 +1,25 @@
 package ru.sberned.statemachine.samples.simple;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationEventPublisher;
-import ru.sberned.statemachine.StateMachine;
-import ru.sberned.statemachine.StateRepository;
-import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.*;
 
-import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Scanner;
 
-import static ru.sberned.statemachine.samples.simple.SimpleState.*;
 
 /**
  * Created by jpatuk on 25/04/2017.
  */
-@SuppressWarnings("unchecked")
 @SpringBootApplication
 public class Simple implements CommandLineRunner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
-    @Autowired
-    private StateMachine<SimpleItem, SimpleState, String> stateListener;
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
-    private StateChanger<SimpleItem, SimpleState> stateChanger;
-    @Autowired
     private ItemStore store;
-
-    @PostConstruct
-    public void configure() {
-        StateRepositoryBuilder<SimpleItem, SimpleState> builder = new StateRepositoryBuilder<>();
-        StateRepository<SimpleItem, SimpleState> repository = builder
-                .setStateChanger(stateChanger)
-                .setAvailableStates(EnumSet.allOf(SimpleState.class))
-                .setUnhandledMessageProcessor((item, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item.getId(), type))
-                .setAnyBefore((BeforeTransition<SimpleItem>) item -> {
-                    LOGGER.info("Started working on item with id {}", item.getId());
-                    return true;
-                })
-                .defineTransitions()
-                .from(STARTED)
-                .to(IN_PROGRESS)
-                .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from STARTED to IN_PROGRESS"))
-                .and()
-                .from(IN_PROGRESS)
-                .to(FINISHED)
-                .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from IN_PROGRESS to FINISHED"))
-                .and()
-                .from(STARTED, IN_PROGRESS)
-                .to(CANCELLED)
-                .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from CANCELED"))
-                .build();
-
-        stateListener.setStateRepository(repository);
-    }
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Simple.class, args);
@@ -107,7 +64,7 @@ public class Simple implements CommandLineRunner {
                     break;
                 }
                 SimpleState state = SimpleState.getByName(predicates[2]);
-                publisher.publishEvent(new StateChangedEvent<>(this, Collections.singletonList(store.getItem(predicates[1])), state));
+                publisher.publishEvent(new StateChangedEvent<>(predicates[1], state));
                 break;
             case "EXIT":
                 System.exit(0);
