@@ -13,7 +13,7 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
     private Set<STATE> availableStates;
     private List<BeforeAnyTransition<ENTITY, STATE>> beforeAllHandlers = new ArrayList<>();
     private List<AfterAnyTransition<ENTITY, STATE>> afterAllHandlers = new ArrayList<>();
-    private UnhandledMessageProcessor<ID> unhandledMessageProcessor;
+    private UnhandledMessageProcessor<ID, STATE> unhandledMessageProcessor;
 
     boolean isValidTransition(STATE from, STATE to) {
         return stateMap.get(to) != null && stateMap.get(to).get(from) != null;
@@ -31,7 +31,7 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
         afterAllHandlers.addAll(anyAfter);
     }
 
-    private void setUnhandledMessageProcessor(UnhandledMessageProcessor<ID> unhandledMessageProcessor) {
+    private void setUnhandledMessageProcessor(UnhandledMessageProcessor<ID, STATE> unhandledMessageProcessor) {
         this.unhandledMessageProcessor = unhandledMessageProcessor;
     }
 
@@ -57,7 +57,7 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
         return afterAllHandlers;
     }
 
-    UnhandledMessageProcessor<ID> getUnhandledMessageProcessor() {
+    UnhandledMessageProcessor<ID, STATE> getUnhandledMessageProcessor() {
         return unhandledMessageProcessor;
     }
 
@@ -105,7 +105,7 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
             return this;
         }
 
-        public StateRepositoryBuilder<ENTITY, STATE, ID> setUnhandledMessageProcessor(UnhandledMessageProcessor<ID> unhandledMessageProcessor) {
+        public StateRepositoryBuilder<ENTITY, STATE, ID> setUnhandledMessageProcessor(UnhandledMessageProcessor<ID, STATE> unhandledMessageProcessor) {
             stateRepository.setUnhandledMessageProcessor(unhandledMessageProcessor);
             return this;
         }

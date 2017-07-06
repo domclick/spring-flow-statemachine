@@ -5,7 +5,7 @@
 
 	<groupId>ru.sberned.statemachine</groupId>
 	<artifactId>spring-flow-state-machine</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<modules>
 		<module>state-machine-core</module>
         <module>state-machine-starter</module>
