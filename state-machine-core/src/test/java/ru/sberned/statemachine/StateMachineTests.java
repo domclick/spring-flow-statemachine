@@ -14,10 +14,14 @@ import ru.sberned.statemachine.state.*;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
-import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
@@ -40,10 +44,9 @@ public class StateMachineTests {
     private AfterTransition<Item> afterTransition1 = mock(AfterTransition.class);
     private AfterTransition<Item> afterTransition2 = mock(AfterTransition.class);
 
-    private StateRepository<Item, CustomState, String> getDefaultTransition(UnhandledMessageProcessor<String> unhandled) {
+    private StateRepository<Item, CustomState, String> getDefaultTransition() {
         return StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
-                .setUnhandledMessageProcessor(unhandled)
                 .defineTransitions()
                 .from(CustomState.START)
                 .to(CustomState.STATE1)
@@ -64,7 +67,7 @@ public class StateMachineTests {
 
     @Test
     public void testCorrectStatesNoHandlers() {
-        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition(null);
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
 
         stateMachine.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1));
@@ -124,7 +127,7 @@ public class StateMachineTests {
 
     @Test
     public void testNoTransition() {
-        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition(null);
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
 
         stateMachine.setStateRepository(stateHolder);
         publisher.publishEvent(new StateChangedEvent("2", CustomState.STATE1));
@@ -159,5 +162,25 @@ public class StateMachineTests {
         inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, item);
         inOrder.verify(afterTransition1, times(1)).afterTransition(item);
         inOrder.verify(afterAny, times(1)).afterTransition(item, CustomState.STATE1);
+    }
+
+    @Test
+    public void testExecutionResultSuccess() throws ExecutionException, InterruptedException {
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
+
+        stateMachine.setStateRepository(stateHolder);
+        Map<String, Future<Boolean>> results = stateMachine.changeState(Collections.singletonList("1"), CustomState.STATE1, null);
+        assertNotNull(results.get("1"));
+        assertTrue(results.get("1").get());
+    }
+
+    @Test
+    public void testExecutionResultFail() throws ExecutionException, InterruptedException {
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
+
+        stateMachine.setStateRepository(stateHolder);
+        Map<String, Future<Boolean>> results = stateMachine.changeState(Collections.singletonList("1"), CustomState.STATE2, null);
+        assertNotNull(results.get("1"));
+        assertFalse(results.get("1").get());
     }
 }

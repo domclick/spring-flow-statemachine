@@ -15,15 +15,15 @@ import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.EXECUTION_EXCEPTION;
 import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.INVALID_TRANSITION;
 import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.TIMEOUT;
+import static ru.sberned.statemachine.util.CustomState.STATE1;
+import static ru.sberned.statemachine.util.CustomState.STATE2;
 
 /**
  * Created by jpatuk on 17/06/2017.
@@ -42,15 +42,15 @@ public class StateMachineUnhandledMessagesTests {
     private CustomStateProvider stateProvider;
     @SpyBean
     private StateChanger<Item, CustomState> onTransition;
-    private UnhandledMessageProcessor<String> processor = mock(UnhandledMessageProcessor.class);
+    private UnhandledMessageProcessor<String, CustomState> processor = mock(UnhandledMessageProcessor.class);
 
-    private StateRepository<Item, CustomState, String> getDefaultTransition(UnhandledMessageProcessor<String> unhandled) {
+    private StateRepository<Item, CustomState, String> getDefaultTransition(UnhandledMessageProcessor<String, CustomState> unhandled) {
         return StateRepository.StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
                 .setUnhandledMessageProcessor(unhandled)
                 .defineTransitions()
                 .from(CustomState.START)
-                .to(CustomState.STATE1)
+                .to(STATE1)
                 .build();
     }
 
@@ -66,19 +66,19 @@ public class StateMachineUnhandledMessagesTests {
                 .setUnhandledMessageProcessor(processor)
                 .defineTransitions()
                 .from(CustomState.START)
-                .to(CustomState.STATE1)
+                .to(STATE1)
                 .and()
-                .from(CustomState.STATE1)
-                .to(CustomState.STATE2)
+                .from(STATE1)
+                .to(STATE2)
                 .build();
 
         stateMachine.setStateRepository(stateHolder);
 
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1));
+        publisher.publishEvent(new StateChangedEvent("1", STATE1));
         Thread.sleep(100);
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE2));
+        publisher.publishEvent(new StateChangedEvent("1", STATE2));
 
-        verify(processor, timeout(3000).times(1)).process("1", TIMEOUT, null);
+        verify(processor, timeout(3000).times(1)).process("1", STATE2, TIMEOUT, null);
     }
 
     @Test
@@ -86,9 +86,9 @@ public class StateMachineUnhandledMessagesTests {
         StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition(processor);
 
         stateMachine.setStateRepository(stateHolder);
-        stateMachine.handleStateChanged(new StateChangedEvent("1", CustomState.STATE2));
+        stateMachine.handleStateChanged(new StateChangedEvent("1", STATE2));
 
-        verify(processor, timeout(1500).times(1)).process("1", INVALID_TRANSITION, null);
+        verify(processor, timeout(1500).times(1)).process("1", STATE2, INVALID_TRANSITION, null);
     }
 
     @Test
@@ -97,11 +97,11 @@ public class StateMachineUnhandledMessagesTests {
         stateMachine.setStateRepository(stateHolder);
 
         RuntimeException ex = new RuntimeException();
-        doThrow(ex).when(onTransition).moveToState(CustomState.STATE1, new Item("1", CustomState.START));
+        doThrow(ex).when(onTransition).moveToState(STATE1, new Item("1", CustomState.START));
 
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1));
+        publisher.publishEvent(new StateChangedEvent("1", STATE1));
 
-        verify(processor, timeout(1500).times(1)).process("1", EXECUTION_EXCEPTION, ex);
+        verify(processor, timeout(1500).times(1)).process("1", STATE1, EXECUTION_EXCEPTION, ex);
     }
 
     @Test
@@ -116,8 +116,8 @@ public class StateMachineUnhandledMessagesTests {
         stateMachine.setStateRepository(stateHolder);
 
         stateMachine.setStateRepository(stateHolder);
-        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE2));
+        publisher.publishEvent(new StateChangedEvent("1", STATE2));
 
-        verify(processor, timeout(1500).times(1)).process("1", INVALID_TRANSITION, null);
+        verify(processor, timeout(1500).times(1)).process("1", STATE2, INVALID_TRANSITION, null);
     }
 }
