@@ -24,6 +24,11 @@ So we've created our own library, which allows you to achieve following goals:
 It is a non-goal to replace spring-statemachine (and we didn't)
 It is a non-goal to provide connectors to any available storage provider
 
+## Components
+
+1. `core` module provides all needed functionality for you to use spring-flow-statemachine
+2. `starter` modules is Spring Boot Starter, which will configure as much as possible in your application for you.
+
 ## Installation
 
 TBD
@@ -78,28 +83,28 @@ Interface, which should be implemented for this aim is `LockProvider`. By defaul
     3. Key class (it should be possible to fetch item with its state from your store by key of this type)
 2. We think that it should be possible to use not all of the available state (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
 3. You should provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this. 
-4. You can define several types of handlers for your statemachine:
+4. You can define several types of handlers for your state machine:
     1. `anyBefore` handlers will be executed before any transition
     2. `before` handlers will be executed before concrete transition
-    3. `after` handlers will be executed after concrete transition
+    3. `after` handlers will be executed after the concrete transition
     4. `anyAfter` handlers will be executed after any transition
 5. `from` should be read as "Transition may start at any of these states"
 6. `to` should be read as "and can stop at any of these ones"
 7. `and` is delimiter method between defining several transition rulesets
 8. Create `StateMachine` itself
-9. Configure state machine behaviour rules by providing it with `StateRepository`
+9. Configure state machine behavior rules by providing it with `StateRepository`
 
 ### Use
 
-You have 2 ways to interact with statemachine
+You have 2 ways to interact with state machine
 
 #### Inject StateMachine
 
-If you choose to inject StateMachine into your service, than you can call `changeState` method. It returns map of your entity id to `Future` of results of execution
+If you choose to inject StateMachine into your service, then you can call `changeState` method. It returns map of your entity id to `Future` of results of execution
 
 #### Use event publisher
 
-You can inject `ApplicationEventPublisher` into your service and send `StateChangedEvent`s there. It is type of one-way communication, when you actually don't care about final result.
+You can inject `ApplicationEventPublisher` into your service and send `StateChangedEvent`s there. It is the type of one-way communication when you actually don't care about the final result.
 
 ## Requirements
 
@@ -107,4 +112,8 @@ Project requires Java 8 and Spring 4+
 
 ## Tests and readiness
 
-We've did our best to write as much tests as we can. Also we use this project at work, so we think that this project is production-ready
+We've done our best to write as many tests as we can. Also, we use this project at work, so we think that this project is production-ready
+
+## Examples
+
+You can find example of usage in state-machine-sample module
