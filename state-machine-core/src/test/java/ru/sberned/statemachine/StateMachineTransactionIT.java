@@ -22,7 +22,7 @@ import static ru.sberned.statemachine.util.CustomState.START;
 import static ru.sberned.statemachine.util.CustomState.STATE1;
 
 /**
- * Created by jpatuk on 25/04/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jpatuk on 04/05/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 04/05/2017.
  */
 @Repository
 public class ItemStore {

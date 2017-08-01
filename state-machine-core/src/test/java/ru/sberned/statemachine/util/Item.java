@@ -3,7 +3,7 @@ package ru.sberned.statemachine.util;
 import ru.sberned.statemachine.state.HasStateAndId;
 
 /**
- * Created by jpatuk on 21/11/2016.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 21/11/2016.
  */
 public class Item implements HasStateAndId<String, CustomState> {
     public String id;

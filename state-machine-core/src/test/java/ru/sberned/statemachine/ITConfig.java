@@ -12,7 +12,7 @@ import ru.sberned.statemachine.lock.MapLockProvider;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 /**
- * Created by jpatuk on 25/04/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.
  */
 @Configuration
 @EnableAutoConfiguration

@@ -7,7 +7,7 @@ import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.lock.MapLockProvider;
 
 /**
- * Created by jpatuk on 07/12/2016.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 07/12/2016.
  */
 @Configuration
 public class StateMachineConfig {

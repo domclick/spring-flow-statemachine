@@ -1,7 +1,7 @@
 package ru.sberned.statemachine.samples.simple;
 
 /**
- * Created by jpatuk on 25/04/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.
  */
 public enum SimpleState {
     STARTED, IN_PROGRESS, FINISHED, CANCELLED;

@@ -3,7 +3,7 @@ package ru.sberned.statemachine.samples.simple;
 import ru.sberned.statemachine.state.HasStateAndId;
 
 /**
- * Created by jpatuk on 04/05/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 04/05/2017.
  */
 public class SimpleItem implements HasStateAndId<String, SimpleState> {
     private String id;
