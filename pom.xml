@@ -9,6 +9,7 @@
 	<modules>
 		<module>state-machine-core</module>
         <module>state-machine-starter</module>
+        <module>state-machine-samples/state-machine-samples-simple</module>
     </modules>
 	<packaging>pom</packaging>
 
