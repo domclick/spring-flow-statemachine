@@ -16,6 +16,7 @@ import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 
 import static org.mockito.Mockito.*;
@@ -26,7 +27,7 @@ import static ru.sberned.statemachine.util.CustomState.STATE1;
 import static ru.sberned.statemachine.util.CustomState.STATE2;
 
 /**
- * Created by jpatuk on 17/06/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 17/06/2017.
  */
 @SuppressWarnings("unchecked")
 @RunWith(SpringRunner.class)
@@ -56,7 +57,7 @@ public class StateMachineUnhandledMessagesTests {
 
     @Before
     public void before() {
-        stateProvider.setItems(Arrays.asList(new Item("1", CustomState.START)));
+        stateProvider.setItems(Collections.singletonList(new Item("1", CustomState.START)));
     }
 
     @Test

@@ -11,7 +11,7 @@ import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
 
 /**
- * Created by jpatuk on 17/06/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 17/06/2017.
  */
 @Configuration
 public class UnhandledMessagesConfig {

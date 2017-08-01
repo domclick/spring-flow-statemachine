@@ -6,7 +6,7 @@ import ru.sberned.statemachine.state.*;
 import java.util.*;
 
 /**
- * Created by jpatuk on 22/03/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 22/03/2017.
  */
 public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
     private Map<STATE, Map<STATE, Processors>> stateMap = new HashMap<>();
@@ -149,7 +149,7 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
         @SafeVarargs
         private final void checkAndFillStates(Set<STATE> whereToFill, STATE... states) {
             if (states == null || states.length == 0) {
-                throw new IllegalArgumentException("No states supplied to from!");
+                throw new IllegalArgumentException("No states supplied!");
             }
 
             for (STATE state : states) {

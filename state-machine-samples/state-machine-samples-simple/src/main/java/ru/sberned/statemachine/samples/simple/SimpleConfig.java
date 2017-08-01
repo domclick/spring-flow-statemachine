@@ -20,7 +20,7 @@ import java.util.EnumSet;
 import static ru.sberned.statemachine.samples.simple.SimpleState.*;
 
 /**
- * Created by jpatuk on 25/04/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.
  */
 @SuppressWarnings("unchecked")
 @Configuration
@@ -34,7 +34,7 @@ public class SimpleConfig {
     public StateMachine<SimpleItem, SimpleState, String> stateMachine() {
         StateRepository<SimpleItem, SimpleState, String> repository = StateRepositoryBuilder.<SimpleItem, SimpleState, String>configure()
                 .setAvailableStates(EnumSet.allOf(SimpleState.class))
-                .setUnhandledMessageProcessor((item, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item, type))
+                .setUnhandledMessageProcessor((item, state, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item, type))
                 .setAnyBefore((BeforeAnyTransition<SimpleItem, SimpleState>) (item, state) -> {
                     LOGGER.info("Started working on item with id {}", item.getId());
                     return true;

@@ -11,7 +11,7 @@ import ru.sberned.statemachine.lock.MapLockProvider;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 /**
- * Created by jpatuk on 10/11/2016.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 10/11/2016.
  */
 @Configuration
 public class TestConfig {

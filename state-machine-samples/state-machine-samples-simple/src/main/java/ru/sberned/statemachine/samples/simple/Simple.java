@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 
 /**
- * Created by jpatuk on 25/04/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.
  */
 @SpringBootApplication
 public class Simple implements CommandLineRunner {

@@ -9,7 +9,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by jpatuk on 07/12/2016.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 07/12/2016.
  */
 public class MapLockProvider implements LockProvider {
     private LoadingCache<Object, Lock> cache = CacheBuilder.newBuilder()

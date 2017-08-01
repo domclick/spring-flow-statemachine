@@ -13,8 +13,8 @@ import ru.sberned.statemachine.processor.UnableToProcessException;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor;
 import ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType;
 import ru.sberned.statemachine.state.HasStateAndId;
-import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
+import ru.sberned.statemachine.state.StateChangedEvent;
 import ru.sberned.statemachine.state.StateChanger;
 
 import java.text.MessageFormat;
@@ -30,7 +30,7 @@ import java.util.concurrent.locks.Lock;
 import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.*;
 
 /**
- * Created by jpatuk on 09/11/2016.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 09/11/2016.
  */
 public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
@@ -58,13 +58,13 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
     }
 
     @EventListener
-    public synchronized void handleStateChanged(StateChangedEvent<STATE, ID> event) {
+    public void handleStateChanged(StateChangedEvent<STATE, ID> event) {
         Assert.notNull(stateRepository, "StateRepository must be initialized!");
 
         changeState(event.getIds(), event.getNewState(), event.getInfo());
     }
 
-    public synchronized Map<ID, Future<Boolean>> changeState(Collection<ID> ids, STATE newState, Object info) {
+    public Map<ID, Future<Boolean>> changeState(Collection<ID> ids, STATE newState, Object info) {
         if (ids != null) {
             Map<ID, Future<Boolean>> processingResults = new HashMap<>();
             ids.forEach(id -> {
@@ -72,7 +72,7 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends
                     try {
                         stateMachine.handleMessage(id, newState, info);
                         return true;
-                    } catch(StateMachineException e) {
+                    } catch (StateMachineException e) {
                         handleIncorrectCase(id, newState, e.getIssueType(), null);
                     } catch (InterruptedException e) {
                         handleIncorrectCase(id, newState, INTERRUPTED_EXCEPTION, e);

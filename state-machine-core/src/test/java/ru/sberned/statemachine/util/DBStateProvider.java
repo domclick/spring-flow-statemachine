@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by jpatuk on 02/05/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 02/05/2017.
  */
 public class DBStateProvider implements ItemWithStateProvider<Item, String>, StateChanger<Item, CustomState> {
     @Autowired

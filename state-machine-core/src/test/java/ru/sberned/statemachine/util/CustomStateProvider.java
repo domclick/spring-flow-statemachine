@@ -5,7 +5,7 @@ import ru.sberned.statemachine.state.ItemWithStateProvider;
 import java.util.List;
 
 /**
- * Created by jpatuk on 17/06/2017.
+ * Created by Evgeniya Patuk (jpatuk@gmail.com) on 17/06/2017.
  */
 public class CustomStateProvider implements ItemWithStateProvider<Item, String> {
     private List<Item> items;
