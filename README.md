@@ -1,4 +1,5 @@
-# Spring Flow State Machine
+# Spring Flow State Machine <a href="http://search.maven.org/#artifactdetails%7Cru.sberned.statemachine%7Cspring-flow-state-machine-starter%7C1.0.2%7Cjar" rel="some text">![Foo](https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg)</a>
+
 
 ## Goal
 
@@ -32,7 +33,29 @@ It is a non-goal to provide connectors to any available storage provider
 
 ## Installation
 
-TBD
+### Spring Boot
+
+If you use Spring Boot then you can set up dependency on starter package
+
+#### Maven 
+
+```xml
+<dependency>
+    <groupId>ru.sberned.statemachine</groupId>
+    <artifactId>spring-flow-state-machine-starter</artifactId>
+    <version>1.0.2</version>
+</dependency>
+```
+
+#### Gradle
+
+```groovy
+compile 'ru.sberned.statemachine:spring-flow-state-machine-starter:1.0.2'
+```
+
+### Spring without Boot
+
+Otherwise you can set up dependency on state-machine-core artefact
 
 ## How To
 
