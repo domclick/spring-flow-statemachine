@@ -56,43 +56,51 @@ Interface, which should be implemented for this aim is `LockProvider`. By defaul
 ```java
     @Bean
     public StateMachine<SimpleItem, SimpleState, String> stateMachine() {
-        StateRepository<SimpleItem, SimpleState, String> repository = StateRepositoryBuilder.<SimpleItem, SimpleState, String>configure() // 1
-                .setAvailableStates(EnumSet.allOf(SimpleState.class)) // 2
-                .setUnhandledMessageProcessor((item, state, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item, type)) // 3
+        StateRepository<SimpleItem, SimpleState, String> repository = StateRepositoryBuilder.<SimpleItem, SimpleState, String>configure() // ①
+                .setAvailableStates(EnumSet.allOf(SimpleState.class)) // ②
+                .setUnhandledMessageProcessor((item, state, type, ex) -> LOGGER.error("Got unhandled item with id {}, issue is {}", item, type)) // ③
                 .setAnyBefore((BeforeAnyTransition<SimpleItem, SimpleState>) (item, state) -> {
                     LOGGER.info("Started working on item with id {}", item.getId());
                     return true;
-                }) // 4
+                }) // ④
                 .defineTransitions()
-                .from(STARTED) // 5
-                .to(IN_PROGRESS) // 6
+                .from(STARTED) // ⑤
+                .to(IN_PROGRESS) // ⑥
                 .after((AfterTransition<SimpleItem>) item -> LOGGER.info("Moved from STARTED to IN_PROGRESS")) 
-                .and() // 7
+                .and() // ⑦
                 // omitted for brevity
                 .build(); 
 
-        StateMachine<SimpleItem, SimpleState, String> stateMachine = new StateMachine<>(stateProvider(), stateChanger(), lockProvider); // 8
-        stateMachine.setStateRepository(repository); // 9
+        StateMachine<SimpleItem, SimpleState, String> stateMachine = new StateMachine<>(stateProvider(), stateChanger(), lockProvider); // ⑧
+        stateMachine.setStateRepository(repository); // ⑨
         return stateMachine;
     }
 ```
 
-1. Everything starts with strongly-typed `StateRepository#configure` method, where we define
+① — Everything starts with strongly-typed `StateRepository#configure` method, where we define
     1. Entity class
     2. State class (should be enum)
     3. Key class (it should be possible to fetch item with its state from your store by key of this type)
-2. We think that it should be possible to use not all of the available state (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
-3. You should provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this. 
-4. You can define several types of handlers for your state machine:
+    
+② — We think that it should be possible to use not all of the available state (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
+
+③ — You should provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this.
+ 
+④ — You can define several types of handlers for your state machine:
     1. `anyBefore` handlers will be executed before any transition
     2. `before` handlers will be executed before concrete transition
     3. `after` handlers will be executed after the concrete transition
     4. `anyAfter` handlers will be executed after any transition
-5. `from` should be read as "Transition may start at any of these states"
-6. `to` should be read as "and can stop at any of these ones"
-7. `and` is delimiter method between defining several transition rulesets
-8. Create `StateMachine` itself
-9. Configure state machine behavior rules by providing it with `StateRepository`
+    
+⑤ — `from` should be read as "Transition may start at any of these states"
+
+⑥ — `to` should be read as "and can stop at any of these ones"
+
+⑦ — `and` is delimiter method between defining several transition rulesets
+
+⑧ — Create `StateMachine` itself
+
+⑨ — Configure state machine behavior rules by providing it with `StateRepository`
 
 ### Use
 
