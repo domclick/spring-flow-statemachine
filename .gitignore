@@ -127,7 +127,7 @@ tags
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
-.idea
+.idea/
 *.iml
 
 # Sensitive or high-churn files:
