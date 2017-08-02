@@ -9,10 +9,11 @@
     <relativePath></relativePath>
     <!-- lookup parent from repository -->
   </parent>
-  <groupId>ru.sberned.statemachine</groupId>
+  <groupId>ru.sberned</groupId>
   <artifactId>spring-flow-state-machine-starter</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <packaging>jar</packaging>
+  <name>spring flow state machine starter</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,9 +28,9 @@
     </dependency>
 
     <dependency>
-      <groupId>ru.sberned.statemachine</groupId>
+      <groupId>ru.sberned</groupId>
       <artifactId>state-machine-core</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
     </dependency>
   </dependencies>
 
@@ -57,5 +58,15 @@
       </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>
