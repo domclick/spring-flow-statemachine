@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/spring-flow-state-machine.iml" filepath="$PROJECT_DIR$/spring-flow-state-machine.iml" />
       <module fileurl="file://$PROJECT_DIR$/state-machine-starter/spring-flow-state-machine-starter.iml" filepath="$PROJECT_DIR$/state-machine-starter/spring-flow-state-machine-starter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/state-machine.iml" filepath="$PROJECT_DIR$/state-machine.iml" />
       <module fileurl="file://$PROJECT_DIR$/state-machine-core/state-machine-core.iml" filepath="$PROJECT_DIR$/state-machine-core/state-machine-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/state-machine-samples/state-machine-samples-simple/state-machine-samples-simple.iml" filepath="$PROJECT_DIR$/state-machine-samples/state-machine-samples-simple/state-machine-samples-simple.iml" />
     </modules>

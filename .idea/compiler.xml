@@ -12,8 +12,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="spring-flow-state-machine" target="1.5" />
       <module name="spring-flow-state-machine-starter" target="1.8" />
-      <module name="state-machine" target="1.5" />
       <module name="state-machine-core" target="1.8" />
       <module name="state-machine-samples-simple" target="1.8" />
     </bytecodeTargetLevel>

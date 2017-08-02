@@ -3,7 +3,6 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/state-machine-core" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/state-machine-samples/state-machine-samples-simple" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/state-machine-starter" charset="UTF-8" />
   </component>
 </project>
