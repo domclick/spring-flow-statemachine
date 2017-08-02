@@ -78,19 +78,21 @@ Interface, which should be implemented for this aim is `LockProvider`. By defaul
 ```
 
 ① — Everything starts with strongly-typed `StateRepository#configure` method, where we define
-    1. Entity class
-    2. State class (should be enum)
-    3. Key class (it should be possible to fetch item with its state from your store by key of this type)
+
+1. Entity class
+2. State class (should be enum)
+3. Key class (it should be possible to fetch item with its state from your store by key of this type)
     
 ② — We think that it should be possible to use not all of the available state (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
 
 ③ — You should provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this.
  
 ④ — You can define several types of handlers for your state machine:
-    1. `anyBefore` handlers will be executed before any transition
-    2. `before` handlers will be executed before concrete transition
-    3. `after` handlers will be executed after the concrete transition
-    4. `anyAfter` handlers will be executed after any transition
+
+1. `anyBefore` handlers will be executed before any transition
+2. `before` handlers will be executed before concrete transition
+3. `after` handlers will be executed after the concrete transition
+4. `anyAfter` handlers will be executed after any transition
     
 ⑤ — `from` should be read as "Transition may start at any of these states"
 
