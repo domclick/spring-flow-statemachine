@@ -6,18 +6,19 @@ This project was born when we understood that [spring-statemachine](http://proje
 
 * It should be easy to use
 * It should be easy to integrate
-* It should manage not state of our application, but state of entities, which our application work with
+* It should manage not the state of our application, but the state of entities, which our application works with
 * It should be easy to configure and extend it
 
 Actually, spring-statemachine doesn't meet any of requirements.
 
-Almost every system we work with has some entities which have their own lifecycle.
+Almost every system we work with has some entities which have its own lifecycle.
 
-So we've created our own library, which allows you to achieve following goals:
+So we've created our own library, which allows you to achieve the following goals:
 
 * Define your own states for any entity
 * Define allowed transitions between states
-* Define actions, which should be performed before and after transitions
+* Define actions, which should be performed before and after specific transition
+* Define actions, which should be performed before/after any transition
 
 ## Non-goals
 
@@ -83,9 +84,9 @@ Interface, which should be implemented for this aim is `LockProvider`. By defaul
 2. State class (should be enum)
 3. Key class (it should be possible to fetch item with its state from your store by key of this type)
     
-② — We think that it should be possible to use not all of the available state (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
+② — We think that it should be possible to use not all of the available states (i.e. if your application is in early stages of development), so you should pass subset of allowed states into method `setAvailableStates`
 
-③ — You should provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this.
+③ — You should, but not necessarily, provide an implementation of `UnhandledMessageProcessor`. It's always possible in distributed system that something will go wrong and we give you the ability to handle this.
  
 ④ — You can define several types of handlers for your state machine:
 
