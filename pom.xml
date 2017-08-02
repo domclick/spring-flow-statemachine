@@ -57,8 +57,14 @@
     </licenses>
     <developers>
         <developer>
-            <name>Eugenia Patuk</name>
+            <name>Evgeniya Patuk</name>
             <email>jpatuk@gmail.com</email>
+            <organization>Sberned</organization>
+            <organizationUrl>http://sberned.ru</organizationUrl>
+        </developer>
+        <developer>
+            <name>Maksim Pozdeev</name>
+            <email>barlog@tanelorn.li</email>
             <organization>Sberned</organization>
             <organizationUrl>http://sberned.ru</organizationUrl>
         </developer>
