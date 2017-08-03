@@ -150,4 +150,4 @@ We've done our best to write as many tests as we can. Also, we use this project 
 
 ## Examples
 
-You can find example of usage in state-machine-sample module
+You can find example of usage in [state-machine-sample](https://github.com/Sberned/spring-flow-statemachine/tree/master/state-machine-samples/state-machine-samples-simple) module
