@@ -11,7 +11,7 @@
   </parent>
   <groupId>ru.sberned.statemachine</groupId>
   <artifactId>spring-flow-state-machine-starter</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>spring flow state machine starter</name>
 
@@ -28,9 +28,9 @@
     </dependency>
 
     <dependency>
-      <groupId>ru.sberned</groupId>
+      <groupId>ru.sberned.statemachine</groupId>
       <artifactId>state-machine-core</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

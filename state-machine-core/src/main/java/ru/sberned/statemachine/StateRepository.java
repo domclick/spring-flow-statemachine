@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 22/03/2017.
  */
-public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
     private Map<STATE, Map<STATE, Processors>> stateMap = new HashMap<>();
     private Set<STATE> availableStates;
     private List<BeforeAnyTransition<ENTITY, STATE>> beforeAllHandlers = new ArrayList<>();
@@ -75,14 +75,14 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
     }
 
 
-    public static class StateRepositoryBuilder<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+    public static class StateRepositoryBuilder<ENTITY extends HasStateAndId<ID, STATE>, STATE , ID> {
         private StateRepository<ENTITY, STATE, ID> stateRepository;
 
         private StateRepositoryBuilder() {
             stateRepository = new StateRepository<>();
         }
 
-        public static <ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> StateRepositoryBuilder<ENTITY, STATE, ID> configure() {
+        public static <ENTITY extends HasStateAndId<ID, STATE>, STATE , ID> StateRepositoryBuilder<ENTITY, STATE, ID> configure() {
             return new StateRepositoryBuilder<>();
         }
 
@@ -116,17 +116,17 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE exte
     }
 
     @SuppressWarnings("unchecked")
-    public interface From<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+    public interface From<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
         To<ENTITY, STATE, ID> from(STATE... states);
     }
 
     @SuppressWarnings("unchecked")
-    public interface To<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+    public interface To<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
         CompleteTransition<ENTITY, STATE, ID> to(STATE... states);
     }
 
     @SuppressWarnings("unchecked")
-    public interface CompleteTransition<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+    public interface CompleteTransition<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
         CompleteTransition<ENTITY, STATE, ID> before(BeforeTransition<ENTITY>... handlers);
 
         CompleteTransition<ENTITY, STATE, ID> after(AfterTransition<ENTITY>... handlers);

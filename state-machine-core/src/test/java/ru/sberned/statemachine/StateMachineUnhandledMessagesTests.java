@@ -15,14 +15,11 @@ import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.CustomStateProvider;
 import ru.sberned.statemachine.util.Item;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 
 import static org.mockito.Mockito.*;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.EXECUTION_EXCEPTION;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.INVALID_TRANSITION;
-import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.TIMEOUT;
+import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueType.*;
 import static ru.sberned.statemachine.util.CustomState.STATE1;
 import static ru.sberned.statemachine.util.CustomState.STATE2;
 

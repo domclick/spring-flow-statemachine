@@ -4,7 +4,7 @@
 
   <groupId>ru.sberned.statemachine</groupId>
   <artifactId>spring-flow-state-machine</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>spring flow state machine</name>
   <description>Spring state machine for entities, not for application</description>
@@ -12,6 +12,7 @@
     <module>state-machine-core</module>
     <module>state-machine-starter</module>
     <module>state-machine-samples/state-machine-samples-simple</module>
+    <module>state-machine-samples/state-machine-loading</module>
   </modules>
 
   <properties>

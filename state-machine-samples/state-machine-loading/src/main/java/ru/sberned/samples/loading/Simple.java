@@ -1,11 +1,15 @@
-package ru.sberned.statemachine.samples.simple;
+package ru.sberned.samples.loading;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationEventPublisher;
-import ru.sberned.statemachine.samples.simple.store.ItemStore;
+import ru.sberned.samples.loading.model.states.FirstState;
+import ru.sberned.samples.loading.model.states.IAmSimpleState;
+import ru.sberned.samples.loading.model.states.SecondState;
+import ru.sberned.samples.loading.model.states.ThirdState;
+import ru.sberned.samples.loading.store.ItemStore;
 import ru.sberned.statemachine.state.StateChangedEvent;
 
 import java.util.Scanner;
@@ -63,8 +67,8 @@ public class Simple implements CommandLineRunner {
                     System.out.println("Such item doesn't exist");
                     break;
                 }
-                SimpleState state = SimpleState.getByName(predicates[2]);
-                publisher.publishEvent(new StateChangedEvent<>(predicates[1], state));
+                IAmSimpleState simpleState = simpleStateByName(predicates[2]);
+                publisher.publishEvent(new StateChangedEvent<>(predicates[1], simpleState));
                 break;
             case "EXIT":
                 System.exit(0);
@@ -73,4 +77,12 @@ public class Simple implements CommandLineRunner {
                 System.out.println("Unknown command submitted.");
         }
     }
+
+    private IAmSimpleState simpleStateByName(String predicate) {
+        if ("first".equals(predicate)) return new FirstState();
+        if ("second".equals(predicate)) return new SecondState();
+        if ("third".equals(predicate)) return new ThirdState();
+        return null;
+    }
+
 }

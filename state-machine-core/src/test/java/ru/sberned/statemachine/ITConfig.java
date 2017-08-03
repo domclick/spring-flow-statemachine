@@ -3,13 +3,13 @@ package ru.sberned.statemachine;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.sberned.statemachine.lock.LockProvider;
+import ru.sberned.statemachine.lock.MapLockProvider;
+import ru.sberned.statemachine.state.ItemWithStateProvider;
 import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.DBStateProvider;
 import ru.sberned.statemachine.util.Item;
-import ru.sberned.statemachine.lock.LockProvider;
-import ru.sberned.statemachine.lock.MapLockProvider;
-import ru.sberned.statemachine.state.ItemWithStateProvider;
 
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.

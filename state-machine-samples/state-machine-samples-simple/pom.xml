@@ -4,14 +4,14 @@
 
   <groupId>ru.sberned.statemachine</groupId>
   <artifactId>state-machine-samples-simple</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.3-SNAPSHOT</version>
   <name>spring flow state machine simple sample</name>
 
   <dependencies>
     <dependency>
-      <groupId>ru.sberned</groupId>
+      <groupId>ru.sberned.statemachine</groupId>
       <artifactId>spring-flow-state-machine-starter</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3-SNAPSHOT</version>
     </dependency>
 
     <dependency>
