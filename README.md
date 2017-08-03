@@ -1,4 +1,4 @@
-# Spring Flow State Machine <a href="http://search.maven.org/#artifactdetails%7Cru.sberned.statemachine%7Cspring-flow-state-machine-starter%7C1.0.2%7Cjar" rel="some text">![Foo](https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg)</a> [![Build Status](https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master)](https://travis-ci.org/Sberned/spring-flow-statemachine)
+# Spring Flow State Machine <a href="http://search.maven.org/#artifactdetails%7Cru.sberned.statemachine%7Cspring-flow-state-machine-starter%7C1.0.2%7Cjar" rel="some text">![(version 1.0.2)](https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg)</a> [![Build Status](https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master)](https://travis-ci.org/Sberned/spring-flow-statemachine)
 
 
 ## Goal
