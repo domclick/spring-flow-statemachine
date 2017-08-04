@@ -1,4 +1,5 @@
 = Spring Flow State Machine image:https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg[link="http://search.maven.org/#artifactdetails%7Cru.sberned.statemachine%7Cspring-flow-state-machine-starter%7C1.0.2%7Cjar"] image:https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master[Build Status,link=https://travis-ci.org/Sberned/spring-flow-statemachine]
+:toc:
 
 == Goal
 
