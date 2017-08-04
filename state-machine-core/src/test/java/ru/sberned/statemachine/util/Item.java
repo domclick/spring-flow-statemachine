@@ -6,7 +6,7 @@ import ru.sberned.statemachine.state.HasStateAndId;
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 21/11/2016.
  */
 public class Item implements HasStateAndId<String, CustomState> {
-    public String id;
+    private String id;
     public CustomState state;
 
     public Item(String id, CustomState state) {

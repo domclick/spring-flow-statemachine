@@ -8,20 +8,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.sberned.statemachine.StateRepository.StateRepositoryBuilder;
-import ru.sberned.statemachine.lock.MapLockProvider;
 import ru.sberned.statemachine.state.AfterAnyTransition;
-import ru.sberned.statemachine.state.ItemWithStateProvider;
 import ru.sberned.statemachine.state.StateChangedEvent;
-import ru.sberned.statemachine.state.StateChanger;
-import ru.sberned.statemachine.util.*;
-import ru.sberned.statemachine.util.StateTwo.FinishStateTwo;
-import ru.sberned.statemachine.util.StateTwo.MiddleStateTwo;
-import ru.sberned.statemachine.util.StateTwo.StartStateTwo;
+import ru.sberned.statemachine.util.CustomState;
+import ru.sberned.statemachine.util.DBStateProvider;
+import ru.sberned.statemachine.util.Item;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
-import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static ru.sberned.statemachine.util.CustomState.*;
 

@@ -1,7 +1,7 @@
 package ru.sberned.statemachine.util;
 
 public interface StateTwo {
-    public class StartStateTwo implements StateTwo {
+    class StartStateTwo implements StateTwo {
         private int i = 1;
 
         @Override
@@ -20,7 +20,7 @@ public interface StateTwo {
         }
     }
 
-    public class MiddleStateTwo implements StateTwo {
+    class MiddleStateTwo implements StateTwo {
         private int i = 2;
 
         @Override
@@ -39,7 +39,7 @@ public interface StateTwo {
         }
     }
 
-    public class FinishStateTwo implements StateTwo {
+    class FinishStateTwo implements StateTwo {
         private int i = 3;
 
         @Override
