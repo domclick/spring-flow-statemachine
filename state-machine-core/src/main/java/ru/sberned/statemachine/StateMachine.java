@@ -32,14 +32,14 @@ import static ru.sberned.statemachine.processor.UnhandledMessageProcessor.IssueT
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 09/11/2016.
  */
-public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE extends Enum<STATE>, ID> {
+public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
     private static final Logger LOGGER = LoggerFactory.getLogger(StateMachine.class);
     private final ItemWithStateProvider<ENTITY, ID> stateProvider;
     private final StateChanger<ENTITY, STATE> stateChanger;
     private final LockProvider lockProvider;
     // To make @Transactional work
     @Autowired
-    private StateMachine<ENTITY, STATE, ID> stateMachine;
+    private StateMachine<ENTITY, STATE, ID> stateMachine = this;
     private StateRepository<ENTITY, STATE, ID> stateRepository;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;

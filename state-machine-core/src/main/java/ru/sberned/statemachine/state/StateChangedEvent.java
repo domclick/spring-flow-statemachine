@@ -7,7 +7,7 @@ import java.util.Collections;
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 01/11/2016.
  */
-public class StateChangedEvent<E extends Enum<E>, ID> implements Serializable {
+public class StateChangedEvent<E, ID> implements Serializable {
     private Collection<ID> ids;
     private E newState;
 

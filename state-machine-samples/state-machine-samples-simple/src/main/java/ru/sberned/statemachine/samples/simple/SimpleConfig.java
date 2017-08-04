@@ -12,8 +12,8 @@ import ru.sberned.statemachine.lock.LockProvider;
 import ru.sberned.statemachine.samples.simple.store.ItemStore;
 import ru.sberned.statemachine.state.AfterTransition;
 import ru.sberned.statemachine.state.BeforeAnyTransition;
-import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
+import ru.sberned.statemachine.state.StateChanger;
 
 import java.util.EnumSet;
 

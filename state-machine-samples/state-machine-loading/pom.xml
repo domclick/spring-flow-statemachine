@@ -1,35 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
 
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>ru.sberned.statemachine</groupId>
-    <artifactId>spring-flow-state-machine</artifactId>
+    <artifactId>state-machine-samples</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <!-- lookup parent from repository -->
   </parent>
-  <artifactId>spring-flow-state-machine-starter</artifactId>
-  <packaging>jar</packaging>
-  <name>spring flow state machine starter</name>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
-  </properties>
+  <artifactId>state-machine-loading</artifactId>
+  <name>spring flow state machine loading sample</name>
 
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
+      <groupId>ru.sberned.statemachine</groupId>
+      <artifactId>spring-flow-state-machine-starter</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>ru.sberned.statemachine</groupId>
-      <artifactId>state-machine-core</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -57,6 +48,10 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
@@ -66,6 +61,7 @@
       </plugin>
     </plugins>
   </build>
+  <url>http://maven.apache.org</url>
   <distributionManagement>
     <repository>
       <id>ossrh</id>

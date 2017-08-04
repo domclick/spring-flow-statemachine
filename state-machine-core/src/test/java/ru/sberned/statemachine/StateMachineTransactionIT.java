@@ -14,12 +14,12 @@ import ru.sberned.statemachine.util.CustomState;
 import ru.sberned.statemachine.util.DBStateProvider;
 import ru.sberned.statemachine.util.Item;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static ru.sberned.statemachine.util.CustomState.FINISH;
-import static ru.sberned.statemachine.util.CustomState.START;
-import static ru.sberned.statemachine.util.CustomState.STATE1;
+import static ru.sberned.statemachine.util.CustomState.*;
 
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 25/04/2017.

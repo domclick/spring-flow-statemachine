@@ -3,8 +3,8 @@ package ru.sberned.statemachine.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.sberned.statemachine.state.StateChanger;
 import ru.sberned.statemachine.state.ItemWithStateProvider;
+import ru.sberned.statemachine.state.StateChanger;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ public class DBStateProvider implements ItemWithStateProvider<Item, String>, Sta
     @Override
     public Item getItemById(String id) {
         return jdbcTemplate.queryForObject("SELECT id, state FROM item WHERE id = ?", new Object[]{id},
-                (resultSet, i) -> new Item(resultSet.getString("id"), CustomState.getByName(resultSet.getString("state"))));
+                (resultSet, i) -> new Item(resultSet.getString("id"), CustomState.valueOf(resultSet.getString("state"))));
     }
 
     public void insertItems(List<Item> items) {
