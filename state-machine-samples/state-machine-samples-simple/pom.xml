@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ru.sberned.statemachine</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ru.sberned.statemachine</groupId>
+    <artifactId>state-machine-samples</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
+  </parent>
+
   <artifactId>state-machine-samples-simple</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
   <name>spring flow state machine simple sample</name>
 
   <dependencies>
     <dependency>
       <groupId>ru.sberned.statemachine</groupId>
       <artifactId>spring-flow-state-machine-starter</artifactId>
-      <version>1.0.3-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.21</version>
     </dependency>
   </dependencies>
 
@@ -26,7 +28,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -39,7 +40,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>

@@ -3,15 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.3.RELEASE</version>
-    <relativePath></relativePath>
+    <groupId>ru.sberned.statemachine</groupId>
+    <artifactId>spring-flow-state-machine</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
     <!-- lookup parent from repository -->
   </parent>
-  <groupId>ru.sberned.statemachine</groupId>
   <artifactId>spring-flow-state-machine-starter</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>spring flow state machine starter</name>
 
@@ -30,7 +27,6 @@
     <dependency>
       <groupId>ru.sberned.statemachine</groupId>
       <artifactId>state-machine-core</artifactId>
-      <version>1.0.3-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -39,7 +35,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -52,7 +47,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>

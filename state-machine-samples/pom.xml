@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ru.sberned.statemachine</groupId>
+    <artifactId>spring-flow-state-machine</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
+  </parent>
+  <artifactId>state-machine-samples</artifactId>
+  <packaging>pom</packaging>
+  <name>spring flow state machine samples</name>
+  <description>Parent of samples, demonstrating how to use library</description>
+  <modules>
+    <module>state-machine-samples-simple</module>
+    <module>state-machine-loading</module>
+  </modules>
+</project>

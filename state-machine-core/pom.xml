@@ -3,16 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.3.RELEASE</version>
-    <relativePath></relativePath>
-    <!-- lookup parent from repository -->
+    <groupId>ru.sberned.statemachine</groupId>
+    <artifactId>spring-flow-state-machine</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
   </parent>
-
-  <groupId>ru.sberned.statemachine</groupId>
   <artifactId>state-machine-core</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>spring flow state machine core</name>
 
@@ -33,7 +28,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>4.3.2.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -43,7 +37,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.21</version>
     </dependency>
 
     <dependency>
@@ -59,13 +52,11 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>${hsqldb.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -75,7 +66,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
