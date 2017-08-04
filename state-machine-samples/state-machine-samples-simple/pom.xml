@@ -5,7 +5,7 @@
   <parent>
     <groupId>ru.sberned.statemachine</groupId>
     <artifactId>state-machine-samples</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
   </parent>
 
   <artifactId>state-machine-samples-simple</artifactId>

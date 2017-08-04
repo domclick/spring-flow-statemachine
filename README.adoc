@@ -1,4 +1,4 @@
-= Spring Flow State Machine image:https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg[link="http://search.maven.org/#artifactdetails%7Cru.sberned.statemachine%7Cspring-flow-state-machine-starter%7C1.0.2%7Cjar"] image:https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master[Build Status,link=https://travis-ci.org/Sberned/spring-flow-statemachine]
+= Spring Flow State Machine image:https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg[link="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22spring-flow-state-machine-starter%22"] image:https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master[Build Status,link=https://travis-ci.org/Sberned/spring-flow-statemachine]
 :toc:
 
 == Goal
@@ -24,6 +24,7 @@ So we've created our own library, which allows you to achieve the following goal
 == Non-goals
 
 It is a non-goal to replace spring-statemachine (and we didn't)
+
 It is a non-goal to provide connectors to any available storage provider
 
 == Components
@@ -143,6 +144,16 @@ If you choose to inject StateMachine into your service, then you can call `chang
 
 You can inject `ApplicationEventPublisher` into your service and send `StateChangedEvent`s there. It is the type of one-way communication when you actually don't care about the final result.
 
+== On-the fly state loading
+
+Since `1.1.0` You can load states and transitions on the fly in runtime, but you need to think about several things:
+
+. All states should have correctly defined `equals` and `hashCode` methods
+. If you update state repository at runtime — it's your responsibility to make all items not to have removed state as current (if any). But it's considered to be a bad practice to remove states at runtime.
+. If you update state repository in your state machine then no guarantees is made for currently queued transitions. It's entirely possible that some of them will fail because of new rules.
+
+You can watch an example of dynamically loading and changing repository in https://github.com/Sberned/spring-flow-statemachine/tree/master/state-machine-samples/state-machine-loading[samples]
+
 == Requirements
 
 Project requires Java 8 and Spring 4+
@@ -153,4 +164,9 @@ We've done our best to write as many tests as we can. Also, we use this project 
 
 == Examples
 
-You can find example of usage in state-machine-sample module
+You can find examples of usage in state-machine-samples module
+
+== Release notes
+
+* *1.1.0*: Adds ability to use non-enum states
+* *1.0.2*: Initial release
