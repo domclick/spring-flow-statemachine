@@ -45,7 +45,7 @@ If you use Spring Boot then you can set up dependency on starter package
 <dependency>
     <groupId>ru.sberned.statemachine</groupId>
     <artifactId>spring-flow-state-machine-starter</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ----
 
@@ -53,7 +53,7 @@ If you use Spring Boot then you can set up dependency on starter package
 
 [source,groovy]
 ----
-compile 'ru.sberned.statemachine:spring-flow-state-machine-starter:1.0.2'
+compile 'ru.sberned.statemachine:spring-flow-state-machine-starter:1.1.0'
 ----
 
 === Spring without Boot
