@@ -1,5 +1,5 @@
 package ru.sberned.samples.loading.model.states;
 
-public interface IAmSimpleState {
+public interface IAmLoadableState {
     String getName();
 }

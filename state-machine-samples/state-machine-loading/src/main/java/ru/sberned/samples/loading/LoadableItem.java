@@ -1,17 +1,17 @@
 package ru.sberned.samples.loading;
 
 import ru.sberned.samples.loading.model.states.FirstState;
-import ru.sberned.samples.loading.model.states.IAmSimpleState;
+import ru.sberned.samples.loading.model.states.IAmLoadableState;
 import ru.sberned.statemachine.state.HasStateAndId;
 
 /**
  * Created by Evgeniya Patuk (jpatuk@gmail.com) on 04/05/2017.
  */
-public class SimpleItem implements HasStateAndId<String, IAmSimpleState> {
+public class LoadableItem implements HasStateAndId<String, IAmLoadableState> {
     private String id;
-    private IAmSimpleState state = new FirstState();
+    private IAmLoadableState state = new FirstState();
 
-    public SimpleItem(String id) {
+    public LoadableItem(String id) {
         this.id = id;
     }
 
@@ -21,7 +21,7 @@ public class SimpleItem implements HasStateAndId<String, IAmSimpleState> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof SimpleItem && ((SimpleItem) obj).id != null && ((SimpleItem) obj).id.equals(this.id);
+        return obj instanceof LoadableItem && ((LoadableItem) obj).id != null && ((LoadableItem) obj).id.equals(this.id);
     }
 
     @Override
@@ -31,11 +31,11 @@ public class SimpleItem implements HasStateAndId<String, IAmSimpleState> {
     }
 
     @Override
-    public IAmSimpleState getState() {
+    public IAmLoadableState getState() {
         return state;
     }
 
-    public void setState(IAmSimpleState state) {
+    public void setState(IAmLoadableState state) {
         this.state = state;
     }
 }

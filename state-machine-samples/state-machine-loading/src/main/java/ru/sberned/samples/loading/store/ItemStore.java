@@ -1,7 +1,7 @@
 package ru.sberned.samples.loading.store;
 
 import org.springframework.stereotype.Repository;
-import ru.sberned.samples.loading.SimpleItem;
+import ru.sberned.samples.loading.LoadableItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +11,14 @@ import java.util.List;
  */
 @Repository
 public class ItemStore {
-    private List<SimpleItem> items = new ArrayList<>();
+    private List<LoadableItem> items = new ArrayList<>();
 
     public boolean itemExists(String id) {
         return getItem(id) != null;
     }
 
-    public SimpleItem getItem(String id) {
-        for (SimpleItem item : items) {
+    public LoadableItem getItem(String id) {
+        for (LoadableItem item : items) {
             if (item.getId().equals(id)) {
                 return item;
             }
@@ -26,8 +26,8 @@ public class ItemStore {
         return null;
     }
 
-    public SimpleItem getItem(SimpleItem itemToFind) {
-        for (SimpleItem item : items) {
+    public LoadableItem getItem(LoadableItem itemToFind) {
+        for (LoadableItem item : items) {
             if (item.equals(itemToFind)) {
                 return item;
             }
@@ -36,7 +36,7 @@ public class ItemStore {
     }
 
     public void createNewItem(String id) {
-        items.add(new SimpleItem(id));
+        items.add(new LoadableItem(id));
         System.out.println("Created new item with id " + id);
     }
 }

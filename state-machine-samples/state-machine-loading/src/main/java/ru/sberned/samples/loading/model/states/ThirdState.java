@@ -1,6 +1,6 @@
 package ru.sberned.samples.loading.model.states;
 
-public class ThirdState implements IAmSimpleState {
+public class ThirdState implements IAmLoadableState {
     private final String name = "third";
 
     public String getName() {
