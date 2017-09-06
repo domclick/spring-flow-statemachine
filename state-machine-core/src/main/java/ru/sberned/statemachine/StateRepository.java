@@ -31,22 +31,12 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID>
         afterAllHandlers.addAll(anyAfter);
     }
 
-    private void setUnhandledMessageProcessor(UnhandledMessageProcessor<ID, STATE> unhandledMessageProcessor) {
-        this.unhandledMessageProcessor = unhandledMessageProcessor;
-    }
-
     List<BeforeTransition<ENTITY>> getBefore(STATE from, STATE to) {
-        if (isValidTransition(from, to)) {
-            return stateMap.get(to).get(from).getBeforeHandlers();
-        }
-        return new ArrayList<>();
+        return stateMap.get(to).get(from).getBeforeHandlers();
     }
 
     List<AfterTransition<ENTITY>> getAfter(STATE from, STATE to) {
-        if (isValidTransition(from, to)) {
-            return stateMap.get(to).get(from).getAfterHandlers();
-        }
-        return new ArrayList<>();
+        return stateMap.get(to).get(from).getAfterHandlers();
     }
 
     List<BeforeAnyTransition<ENTITY, STATE>> getBeforeAll() {
@@ -61,28 +51,40 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID>
         return unhandledMessageProcessor;
     }
 
-    private class Processors {
-        private List<BeforeTransition<ENTITY>> beforeHandlers = new ArrayList<>();
-        private List<AfterTransition<ENTITY>> afterHandlers = new ArrayList<>();
+    private void setUnhandledMessageProcessor(UnhandledMessageProcessor<ID, STATE> unhandledMessageProcessor) {
+        this.unhandledMessageProcessor = unhandledMessageProcessor;
+    }
 
-        private List<BeforeTransition<ENTITY>> getBeforeHandlers() {
-            return beforeHandlers;
-        }
-
-        private List<AfterTransition<ENTITY>> getAfterHandlers() {
-            return afterHandlers;
-        }
+    @SuppressWarnings("unchecked")
+    public interface From<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
+        To<ENTITY, STATE, ID> from(STATE... states);
     }
 
 
-    public static class StateRepositoryBuilder<ENTITY extends HasStateAndId<ID, STATE>, STATE , ID> {
+    @SuppressWarnings("unchecked")
+    public interface To<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
+        CompleteTransition<ENTITY, STATE, ID> to(STATE... states);
+    }
+
+    @SuppressWarnings("unchecked")
+    public interface CompleteTransition<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
+        CompleteTransition<ENTITY, STATE, ID> before(BeforeTransition<ENTITY>... handlers);
+
+        CompleteTransition<ENTITY, STATE, ID> after(AfterTransition<ENTITY>... handlers);
+
+        From<ENTITY, STATE, ID> and();
+
+        StateRepository<ENTITY, STATE, ID> build();
+    }
+
+    public static class StateRepositoryBuilder<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
         private StateRepository<ENTITY, STATE, ID> stateRepository;
 
         private StateRepositoryBuilder() {
             stateRepository = new StateRepository<>();
         }
 
-        public static <ENTITY extends HasStateAndId<ID, STATE>, STATE , ID> StateRepositoryBuilder<ENTITY, STATE, ID> configure() {
+        public static <ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> StateRepositoryBuilder<ENTITY, STATE, ID> configure() {
             return new StateRepositoryBuilder<>();
         }
 
@@ -115,25 +117,17 @@ public class StateRepository<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID>
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public interface From<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
-        To<ENTITY, STATE, ID> from(STATE... states);
-    }
+    private class Processors {
+        private List<BeforeTransition<ENTITY>> beforeHandlers = new ArrayList<>();
+        private List<AfterTransition<ENTITY>> afterHandlers = new ArrayList<>();
 
-    @SuppressWarnings("unchecked")
-    public interface To<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
-        CompleteTransition<ENTITY, STATE, ID> to(STATE... states);
-    }
+        private List<BeforeTransition<ENTITY>> getBeforeHandlers() {
+            return beforeHandlers;
+        }
 
-    @SuppressWarnings("unchecked")
-    public interface CompleteTransition<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
-        CompleteTransition<ENTITY, STATE, ID> before(BeforeTransition<ENTITY>... handlers);
-
-        CompleteTransition<ENTITY, STATE, ID> after(AfterTransition<ENTITY>... handlers);
-
-        From<ENTITY, STATE, ID> and();
-
-        StateRepository<ENTITY, STATE, ID> build();
+        private List<AfterTransition<ENTITY>> getAfterHandlers() {
+            return afterHandlers;
+        }
     }
 
     public class StateTransition implements To<ENTITY, STATE, ID>, From<ENTITY, STATE, ID>, CompleteTransition<ENTITY, STATE, ID> {

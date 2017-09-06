@@ -73,6 +73,15 @@ public class StateMachineTests {
     }
 
     @Test
+    public void shouldMoveToStatePreservingInfo() {
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
+
+        stateMachine.setStateRepository(stateHolder);
+        publisher.publishEvent(new StateChangedEvent("1", CustomState.STATE1, "info"));
+        verify(onTransition, timeout(500).times(1)).moveToState(CustomState.STATE1, new Item("1", CustomState.START), "info");
+    }
+
+    @Test
     public void testCorrectStatesWithHandlersInOrder() throws Exception {
         StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
                 .setAvailableStates(EnumSet.allOf(CustomState.class))
@@ -97,6 +106,80 @@ public class StateMachineTests {
         inOrder.verify(onTransition, times(1)).moveToState(CustomState.STATE1, item);
         inOrder.verify(afterTransition1, times(1)).afterTransition(item);
         inOrder.verify(afterTransition2, times(1)).afterTransition(item);
+    }
+
+    @Test
+    public void noActionsOnAbsentBefore() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
+                .defineTransitions()
+                .from(CustomState.START)
+                .to(CustomState.STATE1)
+                .build();
+
+        stateMachine.setStateRepository(stateHolder);
+
+        Item item = new Item("1", CustomState.START);
+
+        stateMachine.handleMessage("1", CustomState.STATE1, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyFromShouldCauseError() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
+                .defineTransitions()
+                .from()
+                .to(CustomState.STATE1)
+                .build();
+
+        stateMachine.setStateRepository(stateHolder);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyToShouldCauseError() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
+                .defineTransitions()
+                .from(CustomState.START)
+                .to()
+                .build();
+
+        stateMachine.setStateRepository(stateHolder);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullFromStateShouldCauseError() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
+                .defineTransitions()
+                .from(null)
+                .to(CustomState.STATE1)
+                .build();
+
+        stateMachine.setStateRepository(stateHolder);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullToStateShouldCauseError() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(EnumSet.allOf(CustomState.class))
+                .defineTransitions()
+                .from(CustomState.START)
+                .to(null)
+                .build();
+        stateMachine.setStateRepository(stateHolder);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionOnUseOfUnavailableState() throws Exception {
+        StateRepository<Item, CustomState, String> stateHolder = StateRepositoryBuilder.<Item, CustomState, String>configure()
+                .setAvailableStates(Collections.singleton(CustomState.START))
+                .defineTransitions()
+                .from(CustomState.START)
+                .to(CustomState.STATE1)
+                .build();
+        stateMachine.setStateRepository(stateHolder);
     }
 
     @Test
@@ -170,6 +253,17 @@ public class StateMachineTests {
         Map<String, Future<Boolean>> results = stateMachine.changeState(Collections.singletonList("1"), CustomState.STATE1, null);
         assertNotNull(results.get("1"));
         assertTrue(results.get("1").get());
+    }
+
+    @Test
+    public void shoudReturnEmptyMapOnNullOrEmptyEvents() throws ExecutionException, InterruptedException {
+        StateRepository<Item, CustomState, String> stateHolder = getDefaultTransition();
+
+        stateMachine.setStateRepository(stateHolder);
+        Map<String, Future<Boolean>> results = stateMachine.changeState(Collections.EMPTY_LIST, CustomState.STATE1, null);
+        assertTrue(results.isEmpty());
+        results = stateMachine.changeState(null, CustomState.STATE1, null);
+        assertTrue(results.isEmpty());
     }
 
     @Test

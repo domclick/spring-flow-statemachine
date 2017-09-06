@@ -40,7 +40,7 @@ public class StateMachine<ENTITY extends HasStateAndId<ID, STATE>, STATE, ID> {
     // To make @Transactional work
     @Autowired
     private StateMachine<ENTITY, STATE, ID> stateMachine = this;
-    private StateRepository<ENTITY, STATE, ID> stateRepository;
+    volatile private StateRepository<ENTITY, STATE, ID> stateRepository;
     @Value("${statemachine.lock.timeout.ms:5000}")
     private long lockTimeout;
 
