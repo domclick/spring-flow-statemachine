@@ -1,4 +1,5 @@
-= Spring Flow State Machine image:https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg[link="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22spring-flow-state-machine-starter%22"] image:https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master[Build Status,link=https://travis-ci.org/Sberned/spring-flow-statemachine] image:https://img.shields.io/badge/License-MIT-yellow.svg[link="https://opensource.org/licenses/MIT"]
+= Spring Flow State Machine image:https://maven-badges.herokuapp.com/maven-central/ru.sberned.statemachine/state-machine-core/badge.svg[link="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22spring-flow-state-machine-starter%22"] image:https://travis-ci.org/Sberned/spring-flow-statemachine.svg?branch=master[Build Status,link=https://travis-ci.org/Sberned/spring-flow-statemachine] image:https://img.shields.io/badge/License-MIT-yellow.svg[link="https://opensource.org/licenses/MIT"] image:https://codecov.io/gh/Sberned/spring-flow-statemachine/branch/master/graph/badge.svg[link=https://codecov.io/gh/Sberned/spring-flow-statemachine]
+
 :toc:
 
 == Goal
